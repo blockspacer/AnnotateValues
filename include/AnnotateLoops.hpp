@@ -16,6 +16,8 @@ struct AnnotateLoops {
   void annotateWithId(llvm::Loop &CurLoop);
   void annotateWithId(llvm::LoopInfo &LI);
 
+  unsigned int getId() const { return m_currentId; }
+
 private:
   unsigned int m_currentId;
   unsigned int m_idInterval;

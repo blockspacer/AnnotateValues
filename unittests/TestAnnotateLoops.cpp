@@ -62,11 +62,11 @@ struct test_result_visitor : public boost::static_visitor<unsigned int> {
   unsigned int operator()(unsigned int i) const { return i; }
 };
 
-class TestDummy : public testing::Test {
+class TestAnnotateLoops : public testing::Test {
 public:
   enum struct AssemblyHolderType : int { FILE_TYPE, STRING_TYPE };
 
-  TestDummy() : m_Module{nullptr}, m_TestDataDir{"./unittests/data/"} {}
+  TestAnnotateLoops() : m_Module{nullptr}, m_TestDataDir{"./unittests/data/"} {}
 
   void ParseAssembly(
       const char *AssemblyHolder,
@@ -131,18 +131,22 @@ public:
         auto &LI = getAnalysis<llvm::LoopInfoWrapperPass>().getLoopInfo();
         // LI.print(llvm::outs());
 
-        auto &CurLoop = *LI.begin();
+        auto *CurLoop = *LI.begin();
         assert(CurLoop && "Loop ptr is invalid");
 
         test_result_map::const_iterator found;
 
-        // subcase
-        found = lookup("placeholder");
+        AnnotateLoops al;
+        al.annotateWithId(LI);
 
-        const auto &rv = 0;
-        const auto &ev =
-            boost::apply_visitor(test_result_visitor(), found->second);
-        EXPECT_EQ(ev, rv) << found->first;
+        // subcase
+        found = lookup("single loop id annotation");
+        if (std::end(m_trm) != found) {
+          const auto &rv = al.getId();
+          const auto &ev =
+              boost::apply_visitor(test_result_visitor(), found->second);
+          EXPECT_EQ(ev, rv) << found->first;
+        }
 
         return false;
       }
@@ -178,32 +182,12 @@ protected:
   const char *m_TestDataDir;
 };
 
-TEST_F(TestDummy, DISABLE_RegularLoopExits) {
-  ParseAssembly("define void @test() {\n"
-                "%i = alloca i32, align 4\n"
-                "%a = alloca i32, align 4\n"
-                "store i32 100, i32* %i, align 4\n"
-                "store i32 0, i32* %a, align 4\n"
-                "br label %1\n"
-
-                "%2 = load i32, i32* %i, align 4\n"
-                "%3 = add nsw i32 %2, -1\n"
-                "store i32 %3, i32* %i, align 4\n"
-                "%4 = icmp ne i32 %3, 0\n"
-                "br i1 %4, label %5, label %8\n"
-
-                "%6 = load i32, i32* %a, align 4\n"
-                "%7 = add nsw i32 %6, 1\n"
-                "store i32 %7, i32* %a, align 4\n"
-                "br label %1\n"
-
-                "ret void\n"
-                "}\n",
-                AssemblyHolderType::STRING_TYPE);
+TEST_F(TestAnnotateLoops, RegularLoop) {
+  ParseAssembly("test01.ll");
 
   test_result_map trm;
 
-  trm.insert({"placeholder", 0u});
+  trm.insert({"single loop id annotation", 2u});
   ExpectTestPass(trm);
 }
 
