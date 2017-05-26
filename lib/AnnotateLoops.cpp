@@ -2,27 +2,16 @@
 //
 //
 
-#include "llvm/IR/Type.h"
-// using llvm::Module
-
 #include "llvm/IR/Module.h"
 // using llvm::Module
 
-#include "llvm/IR/Function.h"
-// using llvm::Function
-
-#include "llvm/IR/Instruction.h"
-// using llvm::Instruction
+#include "llvm/IR/Type.h"
+// using llvm::IntType
 
 #include "llvm/IR/Constants.h"
-// using llvm::Constant;
-// using llvm::ConstantInt;
-
-#include "llvm/IR/LLVMContext.h"
-// using llvm::LLVMContext;
+// using llvm::ConstantInt
 
 #include "llvm/Analysis/LoopInfo.h"
-// using llvm::LoopInfoWrapperPass;
 // using llvm::LoopInfo;
 // using llvm::Loop;
 
@@ -33,67 +22,53 @@
 #include "llvm/IR/MDBuilder.h"
 // using llvm::MDBuilder
 
-#include "llvm/IR/Constants.h"
-// using llvm::ConstantInt
-
-#include "llvm/IR/LegacyPassManager.h"
-// using llvm::PassManagerBase
-
-#include "llvm/Transforms/IPO/PassManagerBuilder.h"
-// using llvm::PassManagerBuilder
-// using llvm::RegisterStandardPasses
-
 #include "llvm/ADT/SmallVector.h"
 // using llvm::SmallVector
 
-#include "llvm/Support/raw_ostream.h"
-// using llvm::raw_ostream
-
-#include "llvm/Support/Debug.h"
-// using DEBUG macro
-// using llvm::dbgs
-
 #include "AnnotateLoops.hpp"
 
+namespace icsa {
 
-//bool AnnotateLoopsPass::runOnModule(llvm::Module &CurModule) {
-  //llvm::MDBuilder LoopMDBuilder(CurModule.getContext());
+void AnnotateLoops::annotateWithId(llvm::Loop &CurLoop) {
+  auto &curContext =
+      CurLoop.getHeader()->getParent()->getParent()->getContext();
+  llvm::MDBuilder loopMDBuilder(curContext);
+  llvm::SmallVector<llvm::Metadata *, 2> loopIDValues;
 
-  //for (auto &CurFunc : CurModule) {
-    //if (CurFunc.isDeclaration())
-      //continue;
+  // create loop metadata node with custom id
+  loopIDValues.push_back(loopMDBuilder.createString("icsa.dynapar.loop.id"));
+  auto *intType = llvm::Type::getInt32Ty(curContext);
+  loopIDValues.push_back(loopMDBuilder.createConstant(
+      llvm::ConstantInt::get(intType, m_currentId)));
 
-    //const auto &LIPass = Pass::getAnalysis<llvm::LoopInfoWrapperPass>(CurFunc);
-    //const auto &LI = LIPass.getLoopInfo();
-    //for (const auto *CurLoop : LI) {
-      //llvm::SmallVector<llvm::Metadata *, 2> LoopIDVals;
+  m_currentId += m_idInterval;
 
-      //LoopIDVals.push_back(LoopMDBuilder.createString("icsa.dynapar.loop.id"));
-      //auto *IntType = llvm::Type::getInt32Ty(CurModule.getContext());
-      //LoopIDVals.push_back(LoopMDBuilder.createConstant(
-          //llvm::ConstantInt::get(IntType, m_LoopID)));
+  auto *const loopIdMD = llvm::MDNode::get(curContext, loopIDValues);
 
-      //auto *const LoopIDMD =
-          //llvm::MDNode::get(CurModule.getContext(), LoopIDVals);
+  // create storage for loop metadata
+  llvm::SmallVector<llvm::Metadata *, 4> newLoopMDs;
+  newLoopMDs.push_back(nullptr); // reserve the first position for self
+  newLoopMDs.push_back(loopIdMD);
 
-      //llvm::SmallVector<llvm::Metadata *, 4> MDs;
-      //MDs.push_back(nullptr); // reserve the first position for self
-      //MDs.push_back(LoopIDMD);
+  // preserve any existing loop metadata
+  auto *loopMD = CurLoop.getLoopID();
+  for (auto i = 0; loopMD && i < loopMD->getNumOperands(); ++i)
+    newLoopMDs.push_back(loopMD->getOperand(i));
 
-      //auto *LoopMD = CurLoop->getLoopID();
+  // place loop id first
+  auto newLoopIdMD = llvm::MDNode::get(curContext, newLoopMDs);
+  newLoopIdMD->replaceOperandWith(0, newLoopIdMD);
 
-      //if (LoopMD) {
-        //for (auto i = 0; i < LoopMD->getNumOperands(); ++i)
-          //MDs.push_back(LoopMD->getOperand(i));
-      //}
+  CurLoop.setLoopID(newLoopIdMD);
 
-      //auto NewLoopIDMD = llvm::MDNode::get(CurModule.getContext(), MDs);
-      //NewLoopIDMD->replaceOperandWith(0, NewLoopIDMD);
+  return;
+}
 
-      //CurLoop->setLoopID(NewLoopIDMD);
-    //} // loopinfo loop end
-  //}   // func loop end
+void AnnotateLoops::annotateWithId(llvm::LoopInfo &LI) {
+  for (auto *CurLoop : LI)
+    annotateWithId(*CurLoop);
 
-  //return false;
-//}
+  return;
+}
 
+} // namespace icsa end

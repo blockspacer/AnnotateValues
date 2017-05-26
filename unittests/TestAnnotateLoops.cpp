@@ -137,7 +137,7 @@ public:
         test_result_map::const_iterator found;
 
         // subcase
-        found = lookup("number of exits");
+        found = lookup("placeholder");
 
         const auto &rv = 0;
         const auto &ev =
@@ -203,7 +203,7 @@ TEST_F(TestDummy, DISABLE_RegularLoopExits) {
 
   test_result_map trm;
 
-  trm.insert({"number of exits", 1u});
+  trm.insert({"placeholder", 0u});
   ExpectTestPass(trm);
 }
 
