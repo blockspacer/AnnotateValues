@@ -100,7 +100,9 @@ endif()
 #
 
 set(LIB_NAME "LLVM${PRJ_NAME}Pass")
-set(LIB_SOURCES "lib/AnnotateLoops.cpp")
+set(LIB_SOURCES 
+  "lib/AnnotateLoops.cpp"
+  "lib/AnnotateLoopsPass.cpp")
 
 if(NOT PRJ_USE_LLVM_INTERNAL_MODULE)
   add_library(${LIB_NAME} MODULE ${LIB_SOURCES})

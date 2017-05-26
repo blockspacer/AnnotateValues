@@ -55,99 +55,45 @@
 
 #include "AnnotateLoops.hpp"
 
-#define DEBUG_TYPE "annotateloops"
 
-#ifndef NDEBUG
-#define PLUGIN_OUT llvm::outs()
-//#define PLUGIN_OUT llvm::nulls()
+//bool AnnotateLoopsPass::runOnModule(llvm::Module &CurModule) {
+  //llvm::MDBuilder LoopMDBuilder(CurModule.getContext());
 
-// convenience macro when building against a NDEBUG LLVM
-#undef DEBUG
-#define DEBUG(X)                                                               \
-  do {                                                                         \
-    X;                                                                         \
-  } while (0);
-#else // NDEBUG
-#define PLUGIN_OUT llvm::dbgs()
-#endif // NDEBUG
+  //for (auto &CurFunc : CurModule) {
+    //if (CurFunc.isDeclaration())
+      //continue;
 
-#define PLUGIN_ERR llvm::errs()
+    //const auto &LIPass = Pass::getAnalysis<llvm::LoopInfoWrapperPass>(CurFunc);
+    //const auto &LI = LIPass.getLoopInfo();
+    //for (const auto *CurLoop : LI) {
+      //llvm::SmallVector<llvm::Metadata *, 2> LoopIDVals;
 
-// plugin registration for opt
+      //LoopIDVals.push_back(LoopMDBuilder.createString("icsa.dynapar.loop.id"));
+      //auto *IntType = llvm::Type::getInt32Ty(CurModule.getContext());
+      //LoopIDVals.push_back(LoopMDBuilder.createConstant(
+          //llvm::ConstantInt::get(IntType, m_LoopID)));
 
-char AnnotateLoopsPass::ID = 0;
-static llvm::RegisterPass<AnnotateLoopsPass> X("annotate-loops",
-                                               "annotate-loops", false, false);
+      //auto *const LoopIDMD =
+          //llvm::MDNode::get(CurModule.getContext(), LoopIDVals);
 
-// plugin registration for clang
+      //llvm::SmallVector<llvm::Metadata *, 4> MDs;
+      //MDs.push_back(nullptr); // reserve the first position for self
+      //MDs.push_back(LoopIDMD);
 
-// the solution was at the bottom of the header file
-// 'llvm/Transforms/IPO/PassManagerBuilder.h'
-// create a static free-floating callback that uses the legacy pass manager to
-// add an instance of this pass and a static instance of the
-// RegisterStandardPasses class
+      //auto *LoopMD = CurLoop->getLoopID();
 
-static void registerAnnotateLoopsPass(const llvm::PassManagerBuilder &Builder,
-                                      llvm::legacy::PassManagerBase &PM) {
-  PM.add(new AnnotateLoopsPass());
+      //if (LoopMD) {
+        //for (auto i = 0; i < LoopMD->getNumOperands(); ++i)
+          //MDs.push_back(LoopMD->getOperand(i));
+      //}
 
-  return;
-}
+      //auto NewLoopIDMD = llvm::MDNode::get(CurModule.getContext(), MDs);
+      //NewLoopIDMD->replaceOperandWith(0, NewLoopIDMD);
 
-static llvm::RegisterStandardPasses
-    RegisterAnnotateLoopsPass(llvm::PassManagerBuilder::EP_EarlyAsPossible,
-                              registerAnnotateLoopsPass);
+      //CurLoop->setLoopID(NewLoopIDMD);
+    //} // loopinfo loop end
+  //}   // func loop end
 
-//
+  //return false;
+//}
 
-namespace {
-
-void AnnotateLoopsPass::getAnalysisUsage(llvm::AnalysisUsage &AU) const {
-  AU.addRequired<llvm::LoopInfoWrapperPass>();
-  AU.setPreservesAll();
-
-  return;
-}
-
-bool AnnotateLoopsPass::runOnModule(llvm::Module &CurModule) {
-  llvm::MDBuilder LoopMDBuilder(CurModule.getContext());
-
-  for (auto &CurFunc : CurModule) {
-    if (CurFunc.isDeclaration())
-      continue;
-
-    const auto &LIPass = Pass::getAnalysis<llvm::LoopInfoWrapperPass>(CurFunc);
-    const auto &LI = LIPass.getLoopInfo();
-    for (const auto *CurLoop : LI) {
-      llvm::SmallVector<llvm::Metadata *, 2> LoopIDVals;
-
-      LoopIDVals.push_back(LoopMDBuilder.createString("icsa.dynapar.loop.id"));
-      auto *IntType = llvm::Type::getInt32Ty(CurModule.getContext());
-      LoopIDVals.push_back(LoopMDBuilder.createConstant(
-          llvm::ConstantInt::get(IntType, m_LoopID)));
-
-      auto *const LoopIDMD =
-          llvm::MDNode::get(CurModule.getContext(), LoopIDVals);
-
-      llvm::SmallVector<llvm::Metadata *, 4> MDs;
-      MDs.push_back(nullptr); // reserve the first position for self
-      MDs.push_back(LoopIDMD);
-
-      auto *LoopMD = CurLoop->getLoopID();
-
-      if (LoopMD) {
-        for (auto i = 0; i < LoopMD->getNumOperands(); ++i)
-          MDs.push_back(LoopMD->getOperand(i));
-      }
-
-      auto NewLoopIDMD = llvm::MDNode::get(CurModule.getContext(), MDs);
-      NewLoopIDMD->replaceOperandWith(0, NewLoopIDMD);
-
-      CurLoop->setLoopID(NewLoopIDMD);
-    } // loopinfo loop end
-  }   // func loop end
-
-  return false;
-}
-
-} // namespace anonymous end
