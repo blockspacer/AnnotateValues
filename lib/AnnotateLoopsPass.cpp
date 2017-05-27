@@ -20,6 +20,10 @@
 #include "llvm/Support/raw_ostream.h"
 // using llvm::raw_ostream
 
+#include "llvm/Support/CommandLine.h"
+// using llvm::cl::opt
+// using llvm::cl::desc
+
 #include "llvm/Support/Debug.h"
 // using DEBUG macro
 // using llvm::dbgs
@@ -73,6 +77,19 @@ static llvm::RegisterStandardPasses
 
 //
 
+static llvm::cl::opt<unsigned int>
+    LoopDepthThreshold("al-loop-depth-threshold",
+                       llvm::cl::desc("loop depth threshold"),
+                       llvm::cl::init(1));
+
+static llvm::cl::opt<unsigned int> LoopStartId("al-loop-start-id",
+                                               llvm::cl::desc("loop start id"),
+                                               llvm::cl::init(1));
+
+static llvm::cl::opt<unsigned int>
+    LoopIdInterval("al-loop-id-interval", llvm::cl::desc("loop id interval"),
+                   llvm::cl::init(1));
+
 namespace icsa {
 
 void AnnotateLoopsPass::getAnalysisUsage(llvm::AnalysisUsage &AU) const {
@@ -83,42 +100,16 @@ void AnnotateLoopsPass::getAnalysisUsage(llvm::AnalysisUsage &AU) const {
 }
 
 bool AnnotateLoopsPass::runOnModule(llvm::Module &CurModule) {
-  //llvm::MDBuilder LoopMDBuilder(CurModule.getContext());
-
   for (auto &CurFunc : CurModule) {
     if (CurFunc.isDeclaration())
       continue;
 
-    const auto &LIPass = Pass::getAnalysis<llvm::LoopInfoWrapperPass>(CurFunc);
-    const auto &LI = LIPass.getLoopInfo();
-    for (const auto *CurLoop : LI) {
-      // llvm::SmallVector<llvm::Metadata *, 2> LoopIDVals;
+    AnnotateLoops annotator{LoopDepthThreshold, LoopStartId, LoopIdInterval};
 
-      // LoopIDVals.push_back(LoopMDBuilder.createString("icsa.dynapar.loop.id"));
-      // auto *IntType = llvm::Type::getInt32Ty(CurModule.getContext());
-      // LoopIDVals.push_back(LoopMDBuilder.createConstant(
-      // llvm::ConstantInt::get(IntType, m_LoopID)));
-
-      // auto *const LoopIDMD =
-      // llvm::MDNode::get(CurModule.getContext(), LoopIDVals);
-
-      // llvm::SmallVector<llvm::Metadata *, 4> MDs;
-      // MDs.push_back(nullptr); // reserve the first position for self
-      // MDs.push_back(LoopIDMD);
-
-      // auto *LoopMD = CurLoop->getLoopID();
-
-      // if (LoopMD) {
-      // for (auto i = 0; i < LoopMD->getNumOperands(); ++i)
-      // MDs.push_back(LoopMD->getOperand(i));
-      //}
-
-      // auto NewLoopIDMD = llvm::MDNode::get(CurModule.getContext(), MDs);
-      // NewLoopIDMD->replaceOperandWith(0, NewLoopIDMD);
-
-      // CurLoop->setLoopID(NewLoopIDMD);
-    } // loopinfo loop end
-  }   // func loop end
+    auto &LIPass = Pass::getAnalysis<llvm::LoopInfoWrapperPass>(CurFunc);
+    auto &LI = LIPass.getLoopInfo();
+    annotator.annotateWithId(LI);
+  }
 
   return false;
 }
