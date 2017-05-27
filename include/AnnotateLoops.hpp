@@ -10,8 +10,10 @@ class LoopInfo;
 namespace icsa {
 
 struct AnnotateLoops {
-  AnnotateLoops(unsigned int startId = 1, unsigned int idInterval = 1)
-      : m_currentId(startId), m_idInterval(idInterval) {}
+  AnnotateLoops(unsigned int loopDepthThreshold = 1, unsigned int startId = 1,
+                unsigned int idInterval = 1)
+      : m_loopDepthThreshold(loopDepthThreshold), m_currentId(startId),
+        m_idInterval(idInterval) {}
 
   void annotateWithId(llvm::Loop &CurLoop);
   void annotateWithId(llvm::LoopInfo &LI);
@@ -20,7 +22,8 @@ struct AnnotateLoops {
 
 private:
   unsigned int m_currentId;
-  unsigned int m_idInterval;
+  const unsigned int m_idInterval;
+  const unsigned int m_loopDepthThreshold;
 };
 
 } // namespace icsa end

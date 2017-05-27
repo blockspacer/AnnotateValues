@@ -136,13 +136,25 @@ public:
 
         test_result_map::const_iterator found;
 
-        AnnotateLoops al{2, 3};
-        al.annotateWithId(LI);
+        AnnotateLoops al1{1, 2, 3};
+        al1.annotateWithId(LI);
+
+        AnnotateLoops al2{2, 2, 3};
+        al2.annotateWithId(LI);
 
         // subcase
         found = lookup("single loop id annotation");
         if (std::end(m_trm) != found) {
-          const auto &rv = al.getId();
+          const auto &rv = al1.getId();
+          const auto &ev =
+              boost::apply_visitor(test_result_visitor(), found->second);
+          EXPECT_EQ(ev, rv) << found->first;
+        }
+
+        // subcase
+        found = lookup("inner loop id annotation");
+        if (std::end(m_trm) != found) {
+          const auto &rv = al2.getId();
           const auto &ev =
               boost::apply_visitor(test_result_visitor(), found->second);
           EXPECT_EQ(ev, rv) << found->first;
@@ -188,6 +200,7 @@ TEST_F(TestAnnotateLoops, RegularLoop) {
   test_result_map trm;
 
   trm.insert({"single loop id annotation", 5u});
+  trm.insert({"inner loop id annotation", 5u});
   ExpectTestPass(trm);
 }
 
@@ -196,6 +209,7 @@ TEST_F(TestAnnotateLoops, RegularInnerLoop) {
 
   test_result_map trm;
 
+  trm.insert({"single loop id annotation", 5u});
   trm.insert({"inner loop id annotation", 8u});
   ExpectTestPass(trm);
 }
@@ -205,6 +219,7 @@ TEST_F(TestAnnotateLoops, ExitCallLoop) {
 
   test_result_map trm;
 
+  trm.insert({"single loop id annotation", 5u});
   trm.insert({"inner loop id annotation", 5u});
   ExpectTestPass(trm);
 }
