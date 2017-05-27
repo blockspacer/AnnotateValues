@@ -136,7 +136,7 @@ public:
 
         test_result_map::const_iterator found;
 
-        AnnotateLoops al;
+        AnnotateLoops al{2, 3};
         al.annotateWithId(LI);
 
         // subcase
@@ -187,7 +187,7 @@ TEST_F(TestAnnotateLoops, RegularLoop) {
 
   test_result_map trm;
 
-  trm.insert({"single loop id annotation", 2u});
+  trm.insert({"single loop id annotation", 5u});
   ExpectTestPass(trm);
 }
 
@@ -196,7 +196,7 @@ TEST_F(TestAnnotateLoops, RegularInnerLoop) {
 
   test_result_map trm;
 
-  trm.insert({"inner loop id annotation", 3u});
+  trm.insert({"inner loop id annotation", 8u});
   ExpectTestPass(trm);
 }
 
@@ -205,7 +205,7 @@ TEST_F(TestAnnotateLoops, ExitCallLoop) {
 
   test_result_map trm;
 
-  trm.insert({"inner loop id annotation", 2u});
+  trm.insert({"inner loop id annotation", 5u});
   ExpectTestPass(trm);
 }
 
