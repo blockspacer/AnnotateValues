@@ -191,5 +191,14 @@ TEST_F(TestAnnotateLoops, RegularLoop) {
   ExpectTestPass(trm);
 }
 
+TEST_F(TestAnnotateLoops, RegularInnerLoop) {
+  ParseAssembly("test02.ll");
+
+  test_result_map trm;
+
+  trm.insert({"inner loop id annotation", 3u});
+  ExpectTestPass(trm);
+}
+
 } // namespace anonymous end
 } // namespace icsa end
