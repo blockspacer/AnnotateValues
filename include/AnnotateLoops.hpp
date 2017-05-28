@@ -24,6 +24,7 @@ private:
   unsigned int m_currentId;
   const unsigned int m_idInterval;
   const unsigned int m_loopDepthThreshold;
+  const char *m_idKey = "icsa.dynapar.loop.id";
 };
 
 } // namespace icsa end

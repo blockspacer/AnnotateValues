@@ -36,7 +36,7 @@ void AnnotateLoops::annotateWithId(llvm::Loop &CurLoop) {
   llvm::SmallVector<llvm::Metadata *, 2> loopIDValues;
 
   // create loop metadata node with custom id
-  loopIDValues.push_back(loopMDBuilder.createString("icsa.dynapar.loop.id"));
+  loopIDValues.push_back(loopMDBuilder.createString(m_idKey));
   auto *intType = llvm::Type::getInt32Ty(curContext);
   loopIDValues.push_back(loopMDBuilder.createConstant(
       llvm::ConstantInt::get(intType, m_currentId)));
