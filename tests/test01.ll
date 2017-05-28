@@ -46,5 +46,5 @@ while.end:
 }
 
 ; CHECK-LABEL: icsa.dynapar.loop.id
-; CHECK: i32 1
+; CHECK-SAME: i32 1
 
