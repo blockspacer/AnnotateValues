@@ -29,6 +29,10 @@
 
 namespace icsa {
 
+bool AnnotateLoops::hasAnnotatedId(const llvm::Loop &CurLoop) const {
+  return CurLoop.getLoopID() != nullptr;
+}
+
 void AnnotateLoops::annotateWithId(llvm::Loop &CurLoop) {
   auto &curContext =
       CurLoop.getHeader()->getParent()->getParent()->getContext();

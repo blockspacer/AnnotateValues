@@ -18,6 +18,8 @@ struct AnnotateLoops {
   void annotateWithId(llvm::Loop &CurLoop);
   void annotateWithId(llvm::LoopInfo &LI);
 
+  bool hasAnnotatedId(const llvm::Loop &CurLoop) const;
+
   unsigned int getId() const { return m_currentId; }
 
 private:

@@ -137,10 +137,28 @@ public:
         test_result_map::const_iterator found;
 
         AnnotateLoops al1{1, 2, 3};
-        al1.annotateWithId(LI);
-
         AnnotateLoops al2{2, 2, 3};
+
+        // subcase
+        found = lookup("has loop id prior to annotation");
+        if (std::end(m_trm) != found) {
+          const auto &rv = al1.hasAnnotatedId(*CurLoop);
+          const auto &ev =
+              boost::apply_visitor(test_result_visitor(), found->second);
+          EXPECT_EQ(ev, rv) << found->first;
+        }
+
+        al1.annotateWithId(LI);
         al2.annotateWithId(LI);
+
+        // subcase
+        found = lookup("has loop id after annotation");
+        if (std::end(m_trm) != found) {
+          const auto &rv = al1.hasAnnotatedId(*CurLoop);
+          const auto &ev =
+              boost::apply_visitor(test_result_visitor(), found->second);
+          EXPECT_EQ(ev, rv) << found->first;
+        }
 
         // subcase
         found = lookup("single loop id annotation");
@@ -199,6 +217,8 @@ TEST_F(TestAnnotateLoops, RegularLoop) {
 
   test_result_map trm;
 
+  trm.insert({"has loop id prior to annotation", false});
+  trm.insert({"has loop id after annotation", true});
   trm.insert({"single loop id annotation", 5u});
   trm.insert({"inner loop id annotation", 5u});
   ExpectTestPass(trm);
@@ -209,6 +229,8 @@ TEST_F(TestAnnotateLoops, RegularInnerLoop) {
 
   test_result_map trm;
 
+  trm.insert({"has loop id prior to annotation", false});
+  trm.insert({"has loop id after annotation", true});
   trm.insert({"single loop id annotation", 5u});
   trm.insert({"inner loop id annotation", 8u});
   ExpectTestPass(trm);
@@ -219,6 +241,8 @@ TEST_F(TestAnnotateLoops, ExitCallLoop) {
 
   test_result_map trm;
 
+  trm.insert({"has loop id prior to annotation", false});
+  trm.insert({"has loop id after annotation", true});
   trm.insert({"single loop id annotation", 5u});
   trm.insert({"inner loop id annotation", 5u});
   ExpectTestPass(trm);
