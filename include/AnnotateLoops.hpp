@@ -5,6 +5,8 @@
 namespace llvm {
 class Loop;
 class LoopInfo;
+class Metadata;
+class MDTuple;
 } // namespace llvm end
 
 namespace icsa {
@@ -19,10 +21,13 @@ struct AnnotateLoops {
   void annotateWithId(llvm::LoopInfo &LI);
 
   bool hasAnnotatedId(const llvm::Loop &CurLoop) const;
-
+  unsigned int getAnnotatedId(const llvm::Loop &CurLoop) const;
   unsigned int getId() const { return m_currentId; }
 
 private:
+  const llvm::Metadata *getAnnotatedIdNode(const llvm::Metadata *node) const;
+  const llvm::MDTuple *getAnnotatedIdNode(const llvm::Loop &CurLoop) const;
+
   unsigned int m_currentId;
   const unsigned int m_idInterval;
   const unsigned int m_loopDepthThreshold;

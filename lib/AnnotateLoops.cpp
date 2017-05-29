@@ -18,6 +18,9 @@
 #include "llvm/IR/Metadata.h"
 // using llvm::Metadata
 // using llvm::MDNode
+// using llvm::MDTuple
+// using llvm::MDString
+// using llvm::ConstantAsMetadata
 
 #include "llvm/IR/MDBuilder.h"
 // using llvm::MDBuilder
@@ -25,12 +28,66 @@
 #include "llvm/ADT/SmallVector.h"
 // using llvm::SmallVector
 
+#include "llvm/Support/Casting.h"
+// using llvm::dyn_cast
+
+#include <cassert>
+
 #include "AnnotateLoops.hpp"
 
 namespace icsa {
 
+const llvm::Metadata *
+AnnotateLoops::getAnnotatedIdNode(const llvm::Metadata *node) const {
+  if (node->getMetadataID() != llvm::Metadata::MDTupleKind)
+    return nullptr;
+
+  const auto *tupleMD = llvm::dyn_cast<llvm::MDTuple>(node);
+  if (tupleMD->getOperand(0)->getMetadataID() != llvm::Metadata::MDStringKind)
+    return nullptr;
+
+  if (tupleMD->getOperand(1)->getMetadataID() !=
+      llvm::Metadata::ConstantAsMetadataKind)
+    return nullptr;
+
+  const auto *strMD = llvm::dyn_cast<llvm::MDString>(tupleMD->getOperand(0));
+  if (strMD->getString().equals(m_idKey))
+    return tupleMD;
+
+  return nullptr;
+}
+
+const llvm::MDTuple *
+AnnotateLoops::getAnnotatedIdNode(const llvm::Loop &CurLoop) const {
+  if (!CurLoop.getLoopID())
+    return nullptr;
+
+  const auto *loopMD = CurLoop.getLoopID();
+
+  for (auto i = 0; i < loopMD->getNumOperands(); ++i) {
+    const auto *loopIdNode = getAnnotatedIdNode(loopMD->getOperand(i).get());
+
+    if (loopIdNode)
+      return llvm::dyn_cast<llvm::MDTuple>(loopIdNode);
+  }
+
+  return nullptr;
+}
+
 bool AnnotateLoops::hasAnnotatedId(const llvm::Loop &CurLoop) const {
-  return CurLoop.getLoopID() != nullptr;
+  return getAnnotatedIdNode(CurLoop) != nullptr;
+}
+
+unsigned int AnnotateLoops::getAnnotatedId(const llvm::Loop &CurLoop) const {
+  const auto *idNode = getAnnotatedIdNode(CurLoop);
+
+  assert(nullptr != idNode);
+
+  const auto *idOperand = idNode->getOperand(1).get();
+  const auto *constantMD = llvm::dyn_cast<llvm::ConstantAsMetadata>(idOperand);
+  const auto &idConstant = constantMD->getValue()->getUniqueInteger();
+
+  return idConstant.getLimitedValue();
 }
 
 void AnnotateLoops::annotateWithId(llvm::Loop &CurLoop) {
@@ -56,8 +113,9 @@ void AnnotateLoops::annotateWithId(llvm::Loop &CurLoop) {
 
   // preserve any existing loop metadata
   auto *loopMD = CurLoop.getLoopID();
-  for (auto i = 0; loopMD && i < loopMD->getNumOperands(); ++i)
-    newLoopMDs.push_back(loopMD->getOperand(i));
+  for (auto i = 1; loopMD && i < loopMD->getNumOperands(); ++i)
+    if (!getAnnotatedIdNode(loopMD->getOperand(i)))
+      newLoopMDs.push_back(loopMD->getOperand(i));
 
   // place loop id first
   auto newLoopIdMD = llvm::MDNode::get(curContext, newLoopMDs);

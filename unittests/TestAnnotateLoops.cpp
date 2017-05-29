@@ -149,6 +149,8 @@ public:
         }
 
         al1.annotateWithId(LI);
+        const auto annotateId = al1.getAnnotatedId(*CurLoop);
+
         al2.annotateWithId(LI);
 
         // subcase
@@ -161,7 +163,7 @@ public:
         }
 
         // subcase
-        found = lookup("single loop id annotation");
+        found = lookup("single loop id next annotation");
         if (std::end(m_trm) != found) {
           const auto &rv = al1.getId();
           const auto &ev =
@@ -170,12 +172,20 @@ public:
         }
 
         // subcase
-        found = lookup("inner loop id annotation");
+        found = lookup("inner loop id next annotation");
         if (std::end(m_trm) != found) {
           const auto &rv = al2.getId();
           const auto &ev =
               boost::apply_visitor(test_result_visitor(), found->second);
           EXPECT_EQ(ev, rv) << found->first;
+        }
+
+        // subcase
+        found = lookup("top loop id current annotation");
+        if (std::end(m_trm) != found) {
+          const auto &ev =
+              boost::apply_visitor(test_result_visitor(), found->second);
+          EXPECT_EQ(ev, annotateId) << found->first;
         }
 
         return false;
@@ -219,8 +229,9 @@ TEST_F(TestAnnotateLoops, RegularLoop) {
 
   trm.insert({"has loop id prior to annotation", false});
   trm.insert({"has loop id after annotation", true});
-  trm.insert({"single loop id annotation", 5u});
-  trm.insert({"inner loop id annotation", 5u});
+  trm.insert({"single loop id next annotation", 5u});
+  trm.insert({"inner loop id next annotation", 5u});
+  trm.insert({"top loop current id annotation", 2u});
   ExpectTestPass(trm);
 }
 
@@ -231,8 +242,9 @@ TEST_F(TestAnnotateLoops, RegularInnerLoop) {
 
   trm.insert({"has loop id prior to annotation", false});
   trm.insert({"has loop id after annotation", true});
-  trm.insert({"single loop id annotation", 5u});
-  trm.insert({"inner loop id annotation", 8u});
+  trm.insert({"single loop id next annotation", 5u});
+  trm.insert({"inner loop id next annotation", 8u});
+  trm.insert({"top loop current id annotation", 2u});
   ExpectTestPass(trm);
 }
 
@@ -243,8 +255,9 @@ TEST_F(TestAnnotateLoops, ExitCallLoop) {
 
   trm.insert({"has loop id prior to annotation", false});
   trm.insert({"has loop id after annotation", true});
-  trm.insert({"single loop id annotation", 5u});
-  trm.insert({"inner loop id annotation", 5u});
+  trm.insert({"single loop id next annotation", 5u});
+  trm.insert({"inner loop id next annotation", 5u});
+  trm.insert({"top loop current id annotation", 2u});
   ExpectTestPass(trm);
 }
 
