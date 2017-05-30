@@ -2,6 +2,9 @@
 #ifndef ANNOTATELOOPS_HPP
 #define ANNOTATELOOPS_HPP
 
+#include <cstdint>
+// using std::uint32_t
+
 namespace llvm {
 class Loop;
 class LoopInfo;
@@ -12,8 +15,10 @@ class MDTuple;
 namespace icsa {
 
 struct AnnotateLoops {
-  AnnotateLoops(unsigned int loopDepthThreshold = 1, unsigned int startId = 1,
-                unsigned int idInterval = 1)
+  using LoopID_t = std::uint32_t;
+
+  AnnotateLoops(unsigned int loopDepthThreshold = 1, LoopID_t startId = 1,
+                LoopID_t idInterval = 1)
       : m_loopDepthThreshold(loopDepthThreshold), m_currentId(startId),
         m_idInterval(idInterval) {}
 
@@ -21,15 +26,15 @@ struct AnnotateLoops {
   void annotateWithId(llvm::LoopInfo &LI);
 
   bool hasAnnotatedId(const llvm::Loop &CurLoop) const;
-  unsigned int getAnnotatedId(const llvm::Loop &CurLoop) const;
-  unsigned int getId() const { return m_currentId; }
+  LoopID_t getAnnotatedId(const llvm::Loop &CurLoop) const;
+  LoopID_t getId() const { return m_currentId; }
 
 private:
   const llvm::Metadata *getAnnotatedIdNode(const llvm::Metadata *node) const;
   const llvm::MDTuple *getAnnotatedIdNode(const llvm::Loop &CurLoop) const;
 
-  unsigned int m_currentId;
-  const unsigned int m_idInterval;
+  LoopID_t m_currentId;
+  const LoopID_t m_idInterval;
   const unsigned int m_loopDepthThreshold;
   const char *m_idKey = "icsa.dynapar.loop.id";
 };

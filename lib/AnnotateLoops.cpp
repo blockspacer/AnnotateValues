@@ -78,7 +78,8 @@ bool AnnotateLoops::hasAnnotatedId(const llvm::Loop &CurLoop) const {
   return getAnnotatedIdNode(CurLoop) != nullptr;
 }
 
-unsigned int AnnotateLoops::getAnnotatedId(const llvm::Loop &CurLoop) const {
+AnnotateLoops::LoopID_t
+AnnotateLoops::getAnnotatedId(const llvm::Loop &CurLoop) const {
   const auto *idNode = getAnnotatedIdNode(CurLoop);
 
   assert(nullptr != idNode);
