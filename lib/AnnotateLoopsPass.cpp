@@ -203,14 +203,14 @@ bool AnnotateLoopsPass::runOnModule(llvm::Module &CurModule) {
                  << "\'\n";
   }
 
+  AnnotateLoops annotator{LoopDepthThreshold, LoopStartId, LoopIdInterval};
+
   for (auto &CurFunc : CurModule) {
     if (useFuncWhitelist && !funcWhileList.matches(CurFunc.getName().data()))
       continue;
 
     if (CurFunc.isDeclaration())
       continue;
-
-    AnnotateLoops annotator{LoopDepthThreshold, LoopStartId, LoopIdInterval};
 
     auto &LIPass = Pass::getAnalysis<llvm::LoopInfoWrapperPass>(CurFunc);
     auto &LI = LIPass.getLoopInfo();
