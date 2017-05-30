@@ -28,11 +28,18 @@
 // using DEBUG macro
 // using llvm::dbgs
 
+#include "Config.hpp"
+
 #include "AnnotateLoops.hpp"
 
 #include "AnnotateLoopsPass.hpp"
 
-#define DEBUG_TYPE "annotateloops"
+#define DEBUG_TYPE "annotate-loops"
+
+#define STRINGIFY_UTIL(x) #x
+#define STRINGIFY(x) STRINGIFY_UTIL(x)
+
+#define PRJ_CMDLINE_DESC(x) x " (version: " STRINGIFY(ANNOTATELOOPS_VERSION) ")"
 
 #ifndef NDEBUG
 #define PLUGIN_OUT llvm::outs()
@@ -54,7 +61,7 @@
 
 char icsa::AnnotateLoopsPass::ID = 0;
 static llvm::RegisterPass<icsa::AnnotateLoopsPass>
-    X("annotate-loops", "annotate-loops", false, false);
+    X("annotate-loops", PRJ_CMDLINE_DESC("annotate loops"), false, false);
 
 // plugin registration for clang
 
