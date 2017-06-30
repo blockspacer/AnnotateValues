@@ -57,7 +57,7 @@
 
 #include "AnnotateLoopsPass.hpp"
 
-#define DEBUG_TYPE "annotate-loops"
+#define DEBUG_TYPE "annotate_loops"
 
 #define STRINGIFY_UTIL(x) #x
 #define STRINGIFY(x) STRINGIFY_UTIL(x)
