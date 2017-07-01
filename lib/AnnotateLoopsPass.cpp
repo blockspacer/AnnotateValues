@@ -126,7 +126,7 @@ static llvm::cl::opt<std::string>
                         llvm::cl::desc("annotate loops stats report filename"));
 
 static llvm::cl::opt<std::string>
-    FuncWhileListFilename("al-fn-whitelist",
+    FuncWhiteListFilename("al-fn-whitelist",
                           llvm::cl::desc("function whitelist"));
 
 namespace icsa {
@@ -188,25 +188,25 @@ void AnnotateLoopsPass::getAnalysisUsage(llvm::AnalysisUsage &AU) const {
 
 bool AnnotateLoopsPass::runOnModule(llvm::Module &CurModule) {
   bool shouldReportStats = !ReportStatsFilename.empty();
-  bool useFuncWhitelist = !FuncWhileListFilename.empty();
+  bool useFuncWhitelist = !FuncWhiteListFilename.empty();
   bool hasChanged = false;
 
-  BWList funcWhileList;
+  BWList funcWhiteList;
   if (useFuncWhitelist) {
-    std::ifstream funcWhiteListFile{FuncWhileListFilename};
+    std::ifstream funcWhiteListFile{FuncWhiteListFilename};
 
     if (funcWhiteListFile.is_open()) {
-      funcWhileList.addRegex(funcWhiteListFile);
+      funcWhiteList.addRegex(funcWhiteListFile);
       funcWhiteListFile.close();
     } else
-      PLUGIN_ERR << "could not open file: \'" << FuncWhileListFilename
+      PLUGIN_ERR << "could not open file: \'" << FuncWhiteListFilename
                  << "\'\n";
   }
 
   AnnotateLoops annotator{LoopDepthThreshold, LoopStartId, LoopIdInterval};
 
   for (auto &CurFunc : CurModule) {
-    if (useFuncWhitelist && !funcWhileList.matches(CurFunc.getName().data()))
+    if (useFuncWhitelist && !funcWhiteList.matches(CurFunc.getName().data()))
       continue;
 
     if (CurFunc.isDeclaration())
