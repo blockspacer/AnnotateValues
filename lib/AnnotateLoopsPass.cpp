@@ -162,7 +162,7 @@ void ReportStats(const char *Filename) {
   llvm::raw_fd_ostream report(Filename, err, llvm::sys::fs::F_Text);
 
   if (err)
-    PLUGIN_ERR << "could not open file: \"" << ReportStatsFilename
+    PLUGIN_ERR << "could not open file: \"" << Filename
                << "\" reason: " << err.message() << "\n";
   else {
     report << NumFunctionsProcessed << "\n";
