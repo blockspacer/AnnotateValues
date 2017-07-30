@@ -14,12 +14,16 @@ include(CMakePackageConfigHelpers)
 include(Util)
 include(HandleLLVMDependency)
 
-option(PRJ_USE_LLVM_INTERNAL_MODULE TRUE)
-option(PRJ_SKIP_TESTS TRUE)
+option(PRJ_USE_LLVM_INTERNAL_MODULE "Use LLVM macro for creating module" OFF)
+option(PRJ_SKIP_TESTS "Skip configuring the project tests" OFF)
+option(PRJ_DEBUG "Enable project custom debug output facilities" ON)
+
+message(STATUS "project debug: ${PRJ_DEBUG}")
 
 get_version(VERSION PRJ_VERSION)
 
 set(PRJ_NAME AnnotateLoops)
+string(TOUPPER ${PRJ_NAME} PRJ_NAME_UPPER)
 string(TOLOWER ${PRJ_NAME} PRJ_NAME_LOWER)
 
 # part of LLVM or standalone
@@ -93,8 +97,9 @@ endif()
 #find_package(Foo CONFIG)
 
 #if(Foo_FOUND)
-  #get_target_property(FOO_LIB_LOCATION LLVMApplyIOAttributePass LOCATION)
+  #set(${PRJ_NAME_UPPER}_USES_FOO 1)
 #else()
+  #set(${PRJ_NAME_UPPER}_USES_FOO 0)
   #message(WARNING "package Foo was not found; skipping.")
 #endif()
 
@@ -127,6 +132,12 @@ endif()
 #target_link_libraries(${LIB_NAME} PUBLIC ${llvm_libs})
 
 target_compile_definitions(${LIB_NAME} PUBLIC ${LLVM_DEFINITIONS})
+target_compile_definitions(${LIB_NAME} PRIVATE VERSION_STRING=${PRJ_VERSION})
+
+set(PRJ_DEBUG_VALUE 0)
+if(PRJ_DEBUG)
+  set(PRJ_DEBUG_VALUE 1)
+endif()
 
 target_include_directories(${LIB_NAME} PUBLIC ${LLVM_INCLUDE_DIRS})
 target_include_directories(${LIB_NAME} PUBLIC
@@ -135,6 +146,8 @@ target_include_directories(${LIB_NAME} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>)
 target_include_directories(${LIB_NAME} PUBLIC
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include>)
+target_include_directories(${LIB_NAME} PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>)
 
 #
 

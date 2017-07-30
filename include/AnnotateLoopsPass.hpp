@@ -5,6 +5,8 @@
 #ifndef ANNOTATELOOPSPASS_HPP
 #define ANNOTATELOOPSPASS_HPP
 
+#include "Config.hpp"
+
 #include "llvm/Pass.h"
 // using llvm::ModulePass
 // using llvm::AnalysisUsage

@@ -2,13 +2,19 @@
 //
 //
 
+#include "AnnotateLoopsPass.hpp"
+
+#include "AnnotateLoops.hpp"
+
+#include "BWList.hpp"
+
 #include "llvm/IR/Module.h"
 // using llvm::Module
 
 #include "llvm/Analysis/LoopInfo.h"
-// using llvm::LoopInfoWrapperPass;
-// using llvm::LoopInfo;
-// using llvm::Loop;
+// using llvm::LoopInfoWrapperPass
+// using llvm::LoopInfo
+// using llvm::Loop
 
 #include "llvm/IR/LegacyPassManager.h"
 // using llvm::PassManagerBase
@@ -49,20 +55,12 @@
 #include <cstring>
 // using std::strncmp
 
-#include "Config.hpp"
-
-#include "BWList.hpp"
-
-#include "AnnotateLoops.hpp"
-
-#include "AnnotateLoopsPass.hpp"
-
 #define DEBUG_TYPE "annotate_loops"
 
 #define STRINGIFY_UTIL(x) #x
 #define STRINGIFY(x) STRINGIFY_UTIL(x)
 
-#define PRJ_CMDLINE_DESC(x) x " (version: " STRINGIFY(ANNOTATELOOPS_VERSION) ")"
+#define PRJ_CMDLINE_DESC(x) x " (version: " STRINGIFY(VERSION_STRING) ")"
 
 #ifndef NDEBUG
 #define PLUGIN_OUT llvm::outs()
