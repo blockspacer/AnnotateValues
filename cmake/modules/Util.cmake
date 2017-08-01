@@ -2,10 +2,6 @@
 
 include(CMakeParseArguments)
 
-function(debug message_txt)
-  message(STATUS "[DEBUG] ${message_txt}")
-endfunction()
-
 
 function(get_version)
   set(options SHORT)
@@ -69,7 +65,8 @@ function(attach_compilation_db)
     "${multiValueArgs}" ${ARGN})
 
   if(NOT TARGET ${acdb_TARGET})
-    fatal("cannot attach custom command to non-target: ${acdb_TARGET}")
+    message(FATAL_ERROR
+      "cannot attach custom command to non-target: ${acdb_TARGET}")
   endif()
 
   set(file "compile_commands.json")
@@ -87,7 +84,7 @@ function(set_policies)
   math(EXPR upper "${ARGC} - 1")
 
   if(NOT is_even EQUAL 0)
-    fatal("set_policies requires an even number of arguments")
+    message(FATAL_ERROR "set_policies requires an even number of arguments")
   endif()
 
   foreach(idx RANGE 0 ${upper} 2)
