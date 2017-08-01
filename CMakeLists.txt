@@ -173,7 +173,7 @@ add_subdirectory(tests)
 add_subdirectory(doc)
 
 
-attach_compilation_db_command(${LIB_NAME})
+attach_compilation_db(TARGET ${LIB_NAME})
 
 
 # installation
