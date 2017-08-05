@@ -136,8 +136,8 @@ public:
 
         test_result_map::const_iterator found;
 
-        AnnotateLoops al1{1, 2, 3};
-        AnnotateLoops al2{2, 2, 3};
+        AnnotateLoops al1{2, 3};
+        AnnotateLoops al2{2, 3};
 
         // subcase
         found = lookup("has loop id prior to annotation");
@@ -148,10 +148,18 @@ public:
           EXPECT_EQ(ev, rv) << found->first;
         }
 
-        al1.annotateWithId(LI);
+        for (auto *e : LI)
+          al1.annotateWithId(*e);
         const auto annotateId = al1.getAnnotatedId(*CurLoop);
 
-        al2.annotateWithId(LI);
+        for (auto *e : LI) {
+          if (e->getLoopDepth() <= 2)
+            al2.annotateWithId(*e);
+
+          for (auto k : e->getSubLoops())
+            if (k->getLoopDepth() <= 2)
+              al2.annotateWithId(*k);
+        }
 
         // subcase
         found = lookup("has loop id after annotation");

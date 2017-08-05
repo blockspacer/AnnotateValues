@@ -127,17 +127,4 @@ void AnnotateLoops::annotateWithId(llvm::Loop &CurLoop) {
   return;
 }
 
-void AnnotateLoops::annotateWithId(llvm::LoopInfo &LI) {
-  for (auto *CurLoop : LI) {
-    annotateWithId(*CurLoop);
-
-    for (auto &SubLoopIt : *CurLoop) {
-      if ((*SubLoopIt).getLoopDepth() <= m_loopDepthThreshold)
-        annotateWithId(*SubLoopIt);
-    }
-  }
-
-  return;
-}
-
 } // namespace icsa end

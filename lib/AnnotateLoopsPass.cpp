@@ -23,6 +23,9 @@
 // using llvm::PassManagerBuilder
 // using llvm::RegisterStandardPasses
 
+#include "llvm/ADT/SmallVector.h"
+// using llvm::SmallVector
+
 #include "llvm/Support/raw_ostream.h"
 // using llvm::raw_ostream
 
@@ -36,6 +39,9 @@
 #include "llvm/Support/Debug.h"
 // using DEBUG macro
 // using llvm::dbgs
+
+#include <algorithm>
+// using std::for_each
 
 #include <string>
 // using std::string
@@ -105,6 +111,19 @@ static llvm::RegisterStandardPasses
 
 //
 
+enum struct ALOpts {
+  write,
+  read,
+};
+
+static llvm::cl::opt<ALOpts> OperationMode(
+    "al-mode", llvm::cl::desc("operation mode"), llvm::cl::init(ALOpts::write),
+    llvm::cl::values(clEnumValN(ALOpts::write, "write",
+                                "write looops with annotated id mode"),
+                     clEnumValN(ALOpts::read, "read",
+                                "read loops with annotated id mode"),
+                     nullptr));
+
 static llvm::cl::opt<unsigned int>
     LoopDepthThreshold("al-loop-depth-threshold",
                        llvm::cl::desc("loop depth threshold"),
@@ -138,27 +157,10 @@ using LoopIdRange_t =
 long NumFunctionsProcessed = 0;
 std::map<FunctionName_t, LoopIdRange_t> FunctionsAltered;
 
-void ReportStats(void) {
-  PLUGIN_OUT << NumFunctionsProcessed << "\n";
-
-  for (const auto &e : FunctionsAltered) {
-    PLUGIN_OUT << e.first << " " << e.second.first << " " << e.second.second
-               << "\n";
-  }
-
-  return;
-}
+std::map<AnnotateLoops::LoopID_t, FunctionName_t> LoopsAnnotated;
 
 void ReportStats(const char *Filename) {
-  const char *stdout_marker = "--";
-  if (0 == std::strncmp(stdout_marker, Filename, strlen(stdout_marker))) {
-    ReportStats();
-
-    return;
-  }
-
   std::error_code err;
-
   llvm::raw_fd_ostream report(Filename, err, llvm::sys::fs::F_Text);
 
   if (err)
@@ -170,6 +172,12 @@ void ReportStats(const char *Filename) {
     for (const auto &e : FunctionsAltered)
       report << e.first << " " << e.second.first << " " << e.second.second
              << "\n";
+
+    if (FunctionsAltered.size())
+      report << "--\n";
+
+    for (const auto &e : LoopsAnnotated)
+      report << e.first << " " << e.second << "\n";
   }
 
   return;
@@ -201,7 +209,8 @@ bool AnnotateLoopsPass::runOnModule(llvm::Module &CurModule) {
                  << "\'\n";
   }
 
-  AnnotateLoops annotator{LoopDepthThreshold, LoopStartId, LoopIdInterval};
+  llvm::SmallVector<llvm::Loop *, 16> workList;
+  AnnotateLoops annotator{LoopStartId, LoopIdInterval};
 
   for (auto &CurFunc : CurModule) {
     if (useFuncWhitelist && !funcWhiteList.matches(CurFunc.getName().data()))
@@ -210,22 +219,50 @@ bool AnnotateLoopsPass::runOnModule(llvm::Module &CurModule) {
     if (CurFunc.isDeclaration())
       continue;
 
-    auto &LIPass = Pass::getAnalysis<llvm::LoopInfoWrapperPass>(CurFunc);
-    auto &LI = LIPass.getLoopInfo();
+    NumFunctionsProcessed++;
+    workList.clear();
+    auto &LI = getAnalysis<llvm::LoopInfoWrapperPass>(CurFunc).getLoopInfo();
+
+    std::for_each(LI.begin(), LI.end(),
+                  [&workList](llvm::Loop *e) { workList.push_back(e); });
+
+    for (auto i = 0; i < workList.size(); ++i)
+      for (auto &e : workList[i]->getSubLoops())
+        workList.push_back(e);
+
+    workList.erase(
+        std::remove_if(workList.begin(), workList.end(), [](const auto *e) {
+          auto d = e->getLoopDepth();
+          return d > LoopDepthThreshold;
+        }), workList.end());
 
     auto rangeStart = annotator.getId();
 
-    annotator.annotateWithId(LI);
-    NumFunctionsProcessed++;
+    if (ALOpts::write == OperationMode)
+      for (auto *e : workList) {
+        auto id = annotator.getId();
+        annotator.annotateWithId(*e);
+
+        if (shouldReportStats)
+          LoopsAnnotated.emplace(id, CurFunc.getName().str());
+      }
+    else
+      for (auto *e : workList)
+        if (annotator.hasAnnotatedId(*e)) {
+          auto id = annotator.getAnnotatedId(*e);
+
+          if (shouldReportStats)
+            LoopsAnnotated.emplace(id, CurFunc.getName().str());
+        }
 
     auto rangeOpenEnd = annotator.getId();
 
-    if (shouldReportStats && rangeStart != rangeOpenEnd) {
+    if (shouldReportStats && ALOpts::write == OperationMode &&
+        workList.size()) {
       FunctionsAltered.emplace(CurFunc.getName(),
                                std::make_pair(rangeStart, rangeOpenEnd));
+      hasChanged = true;
     }
-
-    hasChanged = true;
   }
 
   if (shouldReportStats)
