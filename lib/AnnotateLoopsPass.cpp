@@ -8,6 +8,8 @@
 
 #include "BWList.hpp"
 
+#include "Utils.hpp"
+
 #include "llvm/IR/Module.h"
 // using llvm::Module
 
@@ -36,10 +38,6 @@
 // using llvm::cl::opt
 // using llvm::cl::desc
 
-#include "llvm/Support/Debug.h"
-// using DEBUG macro
-// using llvm::dbgs
-
 #include <algorithm>
 // using std::for_each
 
@@ -67,22 +65,6 @@
 #define STRINGIFY(x) STRINGIFY_UTIL(x)
 
 #define PRJ_CMDLINE_DESC(x) x " (version: " STRINGIFY(VERSION_STRING) ")"
-
-#ifndef NDEBUG
-#define PLUGIN_OUT llvm::outs()
-//#define PLUGIN_OUT llvm::nulls()
-
-// convenience macro when building against a NDEBUG LLVM
-#undef DEBUG
-#define DEBUG(X)                                                               \
-  do {                                                                         \
-    X;                                                                         \
-  } while (0);
-#else // NDEBUG
-#define PLUGIN_OUT llvm::dbgs()
-#endif // NDEBUG
-
-#define PLUGIN_ERR llvm::errs()
 
 // plugin registration for opt
 
@@ -146,6 +128,13 @@ static llvm::cl::opt<std::string>
     FuncWhiteListFilename("al-fn-whitelist",
                           llvm::cl::desc("function whitelist"));
 
+#if ANNOTATELOOPS_DEBUG
+bool passDebugFlag = false;
+static llvm::cl::opt<bool, true>
+    Debug("al-debug", llvm::cl::desc("debug annotate loops pass"),
+          llvm::cl::location(passDebugFlag));
+#endif // LOOPRUNTIMEPROFILER_DEBUG
+
 namespace icsa {
 
 namespace {
@@ -164,8 +153,8 @@ void ReportStats(const char *Filename) {
   llvm::raw_fd_ostream report(Filename, err, llvm::sys::fs::F_Text);
 
   if (err)
-    PLUGIN_ERR << "could not open file: \"" << Filename
-               << "\" reason: " << err.message() << "\n";
+    llvm::errs() << "could not open file: \"" << Filename
+                 << "\" reason: " << err.message() << "\n";
   else {
     report << NumFunctionsProcessed << "\n";
 
@@ -205,8 +194,8 @@ bool AnnotateLoopsPass::runOnModule(llvm::Module &CurModule) {
       funcWhiteList.addRegex(funcWhiteListFile);
       funcWhiteListFile.close();
     } else
-      PLUGIN_ERR << "could not open file: \'" << FuncWhiteListFilename
-                 << "\'\n";
+      llvm::errs() << "could not open file: \'" << FuncWhiteListFilename
+                   << "\'\n";
   }
 
   llvm::SmallVector<llvm::Loop *, 16> workList;
