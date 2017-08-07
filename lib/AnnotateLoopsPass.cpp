@@ -162,8 +162,7 @@ void ReportStats(const char *Filename) {
       report << e.first << " " << e.second.first << " " << e.second.second
              << "\n";
 
-    if (FunctionsAltered.size())
-      report << "--\n";
+    report << "--\n";
 
     for (const auto &e : LoopsAnnotated)
       report << e.first << " " << e.second << "\n";
