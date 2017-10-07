@@ -181,6 +181,8 @@ attach_compilation_db(TARGET ${LIB_NAME})
 
 # installation
 
+set(CMAKE_INSTALL_MESSAGE "LAZY")
+
 set(PRJ_INSTALL_INCLUDE_DIR "include")
 set(PRJ_INSTALL_SHARE_DIR "share")
 set(PRJ_CONFIG_HEADER_FILE "Config.hpp")
