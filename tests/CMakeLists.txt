@@ -1,7 +1,7 @@
 # cmake file
 
-if(PRJ_SKIP_TESTS)
-  message(WARNING "Testing is disabled; skipping unit tests")
+if(ANNOTATELOOPS_SKIP_TESTS)
+  message(STATUS "Testing is disabled; skipping unit tests")
 
   return()
 endif()
