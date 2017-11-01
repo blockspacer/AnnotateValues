@@ -47,6 +47,11 @@
 #include <utility>
 // using std::pair
 
+#include <tuple>
+// using std::tuple
+// using std::make_tuple
+// using std::get
+
 #include <map>
 // using std::map
 
@@ -120,6 +125,10 @@ static llvm::cl::opt<unsigned int>
                    llvm::cl::init(1));
 //
 
+static llvm::cl::opt<bool>
+    ReportLoopLineNumbers("al-loop-lines",
+                          llvm::cl::desc("report loop file lines"));
+
 static llvm::cl::opt<std::string>
     ReportStatsFilename("al-stats",
                         llvm::cl::desc("annotate loops stats report filename"));
@@ -133,7 +142,7 @@ bool passDebugFlag = false;
 static llvm::cl::opt<bool, true>
     Debug("al-debug", llvm::cl::desc("debug annotate loops pass"),
           llvm::cl::location(passDebugFlag));
-#endif // LOOPRUNTIMEPROFILER_DEBUG
+#endif // ANNOTATELOOPS_DEBUG
 
 namespace icsa {
 
@@ -142,11 +151,13 @@ namespace {
 using FunctionName_t = std::string;
 using LoopIdRange_t =
     std::pair<AnnotateLoops::LoopID_t, AnnotateLoops::LoopID_t>;
+using LineNumber_t = unsigned long;
 
 long NumFunctionsProcessed = 0;
 std::map<FunctionName_t, LoopIdRange_t> FunctionsAltered;
 
-std::map<AnnotateLoops::LoopID_t, FunctionName_t> LoopsAnnotated;
+std::map<AnnotateLoops::LoopID_t, std::tuple<FunctionName_t, LineNumber_t>>
+    LoopsAnnotated;
 
 void ReportStats(const char *Filename) {
   std::error_code err;
@@ -164,8 +175,14 @@ void ReportStats(const char *Filename) {
 
     report << "--\n";
 
-    for (const auto &e : LoopsAnnotated)
-      report << e.first << " " << e.second << "\n";
+    for (const auto &e : LoopsAnnotated) {
+      report << e.first << ' ' << std::get<0>(e.second);
+
+      if(ReportLoopLineNumbers)
+        report << ' ' << std::get<1>(e.second);
+
+      report << '\n';
+    }
   }
 
   return;
@@ -231,8 +248,15 @@ bool AnnotateLoopsPass::runOnModule(llvm::Module &CurModule) {
         auto id = annotator.getId();
         annotator.annotateWithId(*e);
 
-        if (shouldReportStats)
-          LoopsAnnotated.emplace(id, CurFunc.getName().str());
+        if (shouldReportStats) {
+          LineNumber_t line = 0;
+
+          if (ReportLoopLineNumbers)
+            line = e->getStartLoc().getLine();
+
+          LoopsAnnotated.emplace(
+              id, std::make_tuple(CurFunc.getName().str(), line));
+        }
       }
     else
       for (auto *e : workList)
