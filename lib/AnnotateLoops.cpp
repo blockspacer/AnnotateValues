@@ -43,6 +43,10 @@ AnnotateLoops::getAnnotatedIdNode(const llvm::Metadata *node) const {
     return nullptr;
 
   const auto *tupleMD = llvm::dyn_cast<llvm::MDTuple>(node);
+
+  if(tupleMD->getNumOperands() < 2)
+    return nullptr;
+
   if (tupleMD->getOperand(0)->getMetadataID() != llvm::Metadata::MDStringKind)
     return nullptr;
 
