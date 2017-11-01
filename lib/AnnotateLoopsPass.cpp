@@ -37,6 +37,8 @@
 #include "llvm/Support/CommandLine.h"
 // using llvm::cl::opt
 // using llvm::cl::desc
+// using llvm::cl::cat
+// using llvm::cl::OptionCategory
 
 #include <algorithm>
 // using std::for_each
@@ -98,6 +100,10 @@ static llvm::RegisterStandardPasses
 
 //
 
+static llvm::cl::OptionCategory
+    AnnotateLoopsCategory("AnnotateLoops pass",
+                          "Options for AnnotateLoops pass");
+
 enum struct ALOpts {
   write,
   read,
@@ -109,39 +115,44 @@ static llvm::cl::opt<ALOpts> OperationMode(
                                 "write looops with annotated id mode"),
                      clEnumValN(ALOpts::read, "read",
                                 "read loops with annotated id mode"),
-                     nullptr));
+                     nullptr),
+    llvm::cl::cat(AnnotateLoopsCategory));
 
 static llvm::cl::opt<unsigned int>
     LoopDepthThreshold("al-loop-depth-threshold",
                        llvm::cl::desc("loop depth threshold"),
-                       llvm::cl::init(1));
+                       llvm::cl::init(1), llvm::cl::cat(AnnotateLoopsCategory));
 
-static llvm::cl::opt<unsigned int> LoopStartId("al-loop-start-id",
-                                               llvm::cl::desc("loop start id"),
-                                               llvm::cl::init(1));
+static llvm::cl::opt<unsigned int>
+    LoopStartId("al-loop-start-id", llvm::cl::desc("loop start id"),
+                llvm::cl::init(1), llvm::cl::cat(AnnotateLoopsCategory));
 
 static llvm::cl::opt<unsigned int>
     LoopIdInterval("al-loop-id-interval", llvm::cl::desc("loop id interval"),
-                   llvm::cl::init(1));
+                   llvm::cl::init(1), llvm::cl::cat(AnnotateLoopsCategory));
 //
 
 static llvm::cl::opt<bool>
     ReportLoopLineNumbers("al-loop-lines",
-                          llvm::cl::desc("report loop file lines"));
+                          llvm::cl::desc("report loop file lines"),
+                          llvm::cl::cat(AnnotateLoopsCategory));
 
 static llvm::cl::opt<std::string>
     ReportStatsFilename("al-stats",
-                        llvm::cl::desc("annotate loops stats report filename"));
+                        llvm::cl::desc("annotate loops stats report filename"),
+                        llvm::cl::cat(AnnotateLoopsCategory));
 
 static llvm::cl::opt<std::string>
     FuncWhiteListFilename("al-fn-whitelist",
-                          llvm::cl::desc("function whitelist"));
+                          llvm::cl::desc("function whitelist"),
+                          llvm::cl::cat(AnnotateLoopsCategory));
 
 #if ANNOTATELOOPS_DEBUG
 bool passDebugFlag = false;
 static llvm::cl::opt<bool, true>
     Debug("al-debug", llvm::cl::desc("debug annotate loops pass"),
-          llvm::cl::location(passDebugFlag));
+          llvm::cl::location(passDebugFlag),
+          llvm::cl::cat(AnnotateLoopsCategory));
 #endif // ANNOTATELOOPS_DEBUG
 
 namespace icsa {
@@ -178,7 +189,7 @@ void ReportStats(const char *Filename) {
     for (const auto &e : LoopsAnnotated) {
       report << e.first << ' ' << std::get<0>(e.second);
 
-      if(ReportLoopLineNumbers)
+      if (ReportLoopLineNumbers)
         report << ' ' << std::get<1>(e.second);
 
       report << '\n';
