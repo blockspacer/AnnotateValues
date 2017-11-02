@@ -40,6 +40,9 @@
 // using llvm::cl::cat
 // using llvm::cl::OptionCategory
 
+#include "llvm/IR/DebugInfoMetadata.h"
+// using llvm::DIScope
+
 #include <algorithm>
 // using std::for_each
 
@@ -163,12 +166,13 @@ using FunctionName_t = std::string;
 using LoopIdRange_t =
     std::pair<AnnotateLoops::LoopID_t, AnnotateLoops::LoopID_t>;
 using LineNumber_t = unsigned long;
+using FileName_t = std::string;
 
 long NumFunctionsProcessed = 0;
 std::map<FunctionName_t, LoopIdRange_t> FunctionsAltered;
 
-std::map<AnnotateLoops::LoopID_t, std::tuple<FunctionName_t, LineNumber_t>>
-    LoopsAnnotated;
+std::map<AnnotateLoops::LoopID_t,
+         std::tuple<FunctionName_t, LineNumber_t, FileName_t>> LoopsAnnotated;
 
 void ReportStats(const char *Filename) {
   std::error_code err;
@@ -189,8 +193,10 @@ void ReportStats(const char *Filename) {
     for (const auto &e : LoopsAnnotated) {
       report << e.first << ' ' << std::get<0>(e.second);
 
-      if (ReportLoopLineNumbers)
+      if (ReportLoopLineNumbers) {
         report << ' ' << std::get<1>(e.second);
+        report << ' ' << std::get<2>(e.second);
+      }
 
       report << '\n';
     }
@@ -261,12 +267,17 @@ bool AnnotateLoopsPass::runOnModule(llvm::Module &CurModule) {
 
         if (shouldReportStats) {
           LineNumber_t line = 0;
+          FileName_t filename;
 
-          if (ReportLoopLineNumbers)
+          if (ReportLoopLineNumbers) {
             line = e->getStartLoc().getLine();
+            auto *scope =
+                llvm::cast<llvm::DIScope>(e->getStartLoc().getScope());
+            filename = scope->getFilename();
+          }
 
           LoopsAnnotated.emplace(
-              id, std::make_tuple(CurFunc.getName().str(), line));
+              id, std::make_tuple(CurFunc.getName().str(), line, filename));
         }
       }
     else
