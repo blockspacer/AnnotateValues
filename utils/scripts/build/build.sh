@@ -3,17 +3,11 @@
 # set configuration vars
 
 [[ -z $1 ]] && echo "error: source directory was not provided" && exit 1
-
 SRC_DIR=$1
+
 INSTALL_DIR=${2:-../install/}
 
-# print configuration vars
-
-echo "info: printing configuration vars"
-echo "info: source dir: ${SRC_DIR}"
-echo "info: install dir: ${INSTALL_DIR}"
-echo ""
-
+#
 
 cmake \
   -DCMAKE_EXPORT_COMPILE_COMMANDS=On \
@@ -26,6 +20,4 @@ cmake \
   -DCMAKE_INSTALL_PREFIX="${INSTALL_DIR}" \
   ${CMAKE_OPTIONS} \
   "${SRC_DIR}"
-
-exit $?
 
