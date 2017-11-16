@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-# set configuration vars
-
 [[ -z $1 ]] && echo "error: source directory was not provided" && exit 1
 SRC_DIR=$1
 
@@ -10,6 +8,7 @@ INSTALL_DIR=${2:-../install/}
 #
 
 cmake \
+  -G Ninja \
   -DCMAKE_EXPORT_COMPILE_COMMANDS=On \
   -DCMAKE_BUILD_TYPE="${BUILD_TYPE}" \
   -DCMAKE_CXX_FLAGS="${CXX_FLAGS}" \
