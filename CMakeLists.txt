@@ -15,6 +15,8 @@ include(CMakePackageConfigHelpers)
 include(HandleLLVMDependency)
 include(cmake-utils)
 
+add_cleanall_target()
+
 option(ANNOTATELOOPS_SKIP_TESTS "Skip configuring the project tests" ON)
 option(ANNOTATELOOPS_DEBUG "Enable project custom debug output facilities" OFF)
 
@@ -216,8 +218,11 @@ install(TARGETS ${LIB_NAME} EXPORT ${ANNOTATELOOPS_EXPORT}
   LIBRARY DESTINATION "${PRJ_INSTALL_LIB_DIR}")
 
 file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include")
-set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES
+
+add_custom_target(clean_generated_include
+  COMMAND "${CMAKE_COMMAND}" "-E" "remove_directory"
   "${CMAKE_CURRENT_BINARY_DIR}/include")
+add_dependencies(clean_all clean_generated_include)
 
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/include/${PRJ_CONFIG_HEADER_FILE}.in"
