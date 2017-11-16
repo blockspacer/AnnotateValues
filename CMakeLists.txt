@@ -8,10 +8,12 @@ enable_testing()
 
 # add project cmake module path
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
+list(APPEND CMAKE_MODULE_PATH
+  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake-utils/modules")
 
 include(CMakePackageConfigHelpers)
-include(Util)
 include(HandleLLVMDependency)
+include(cmake-utils)
 
 option(ANNOTATELOOPS_SKIP_TESTS "Skip configuring the project tests" ON)
 option(ANNOTATELOOPS_DEBUG "Enable project custom debug output facilities" OFF)
