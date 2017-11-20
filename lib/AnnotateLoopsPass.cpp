@@ -10,6 +10,10 @@
 
 #include "Utils.hpp"
 
+#if ANNOTATELOOPS_USES_JSON
+#include "nlohmann/json.hpp"
+#endif // ANNOTATELOOPS_USES_JSON
+
 #include "llvm/IR/Module.h"
 // using llvm::Module
 
