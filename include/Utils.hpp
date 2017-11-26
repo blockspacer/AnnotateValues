@@ -7,7 +7,9 @@
 
 #include "Config.hpp"
 
-#if LOOPRUNTIMEPROFILER_DEBUG
+enum class LogLevel { info, notice, warning, error, debug };
+
+#if ANNOTATELOOPS_DEBUG
 
 #include "llvm/IR/Function.h"
 // using llvm::Function
@@ -26,18 +28,21 @@
 // using std::error_code
 
 namespace icsa {
+
 extern bool passDebugFlag;
+extern LogLevel passLogLevel;
+
 } // namespace icsa end
 
-#define DEBUG_MSG(STR)                                                         \
+#define DEBUG_MSG(L, STR)                                                      \
   do {                                                                         \
-    if (passDebugFlag)                                                         \
+    if (icsa::passDebugFlag && L <= icsa::passLogLevel)                        \
       llvm::errs() << STR;                                                     \
   } while (false)
 
-#define DEBUG_CMD(C)                                                           \
+#define DEBUG_CMD(L, C)                                                        \
   do {                                                                         \
-    if (passDebugFlag)                                                         \
+    if (icsa::passDebugFlag && L <= icsa::passLogLevel)                        \
       C;                                                                       \
   } while (false)
 
@@ -63,11 +68,11 @@ static bool dumpFunction(const llvm::Function *CurFunc = nullptr) {
 
 #else
 
-#define DEBUG_MSG(S)                                                           \
+#define DEBUG_MSG(L, S)                                                        \
   do {                                                                         \
   } while (false)
 
-#define DEBUG_CMD(C)                                                           \
+#define DEBUG_CMD(L, C)                                                        \
   do {                                                                         \
   } while (false)
 
@@ -83,6 +88,6 @@ static constexpr bool dumpFunction(const llvm::Function *CurFunc = nullptr) {
 
 } // namespace icsa end
 
-#endif // LOOPRUNTIMEPROFILER_DEBUG
+#endif // ANNOTATELOOPS_DEBUG
 
 #endif // UTILS_HPP
