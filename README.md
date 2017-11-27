@@ -41,7 +41,8 @@ A (usually up-to-date) generic template for the layout of this repository can be
 
 ### Optional
 
-None.
+- [nlohmann/json][13]  
+  *To be used* for producing reports in `JSON` format.
 
 
 ## How to build
@@ -128,4 +129,5 @@ When the build script uses `LLVM` `cmake` [utility][8] functions the `lib` share
 [10]: https://libcxx.llvm.org/docs/
 [11]: https://gcc.gnu.org/wiki/Libstdc++
 [12]: https://github.com/compor/llvm-skeletons
+[13]: https://github.com/nlohmann/json
 
