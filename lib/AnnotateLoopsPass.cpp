@@ -14,6 +14,8 @@
 #include "nlohmann/json.hpp"
 #endif // ANNOTATELOOPS_USES_JSON
 
+#include "llvm/Config/llvm-config.h"
+
 #include "llvm/IR/Module.h"
 // using llvm::Module
 
@@ -121,7 +123,13 @@ static llvm::cl::opt<ALOpts> OperationMode(
     llvm::cl::values(clEnumValN(ALOpts::write, "write",
                                 "write looops with annotated id mode"),
                      clEnumValN(ALOpts::read, "read",
-                                "read loops with annotated id mode")),
+                                "read loops with annotated id mode")
+// clang-format off
+#if (LLVM_VERSION_MAJOR <= 3 && LLVM_VERSION_MINOR < 9)
+                                , clEnumValEnd
+#endif
+                     // clang-format on
+                     ),
     llvm::cl::cat(AnnotateLoopsCategory));
 
 static llvm::cl::opt<unsigned int>
