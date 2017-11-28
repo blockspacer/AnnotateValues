@@ -11,6 +11,8 @@
 #include <cstdlib>
 // using std::abort
 
+#include "llvm/Config/llvm-config.h"
+
 #include "llvm/IR/LLVMContext.h"
 // using llvm::LLVMContext
 
@@ -73,16 +75,22 @@ public:
       const AssemblyHolderType asmHolder = AssemblyHolderType::FILE_TYPE) {
     llvm::SMDiagnostic err;
 
+#if (LLVM_VERSION_MAJOR >= 4) ||                                               \
+    (LLVM_VERSION_MAJOR == 3 && LLVM_VERSION_MINOR >= 9)
+    static llvm::LLVMContext theContext;
+    auto &ctx = theContext;
+#else
+    auto &ctx = llvm::getGlobalContext();
+#endif
+
     if (AssemblyHolderType::FILE_TYPE == asmHolder) {
       std::string fullFilename{m_TestDataDir};
       fullFilename += AssemblyHolder;
 
-      m_Module =
-          llvm::parseAssemblyFile(fullFilename, err, llvm::getGlobalContext());
+      m_Module = llvm::parseAssemblyFile(fullFilename, err, ctx);
 
     } else {
-      m_Module = llvm::parseAssemblyString(AssemblyHolder, err,
-                                           llvm::getGlobalContext());
+      m_Module = llvm::parseAssemblyString(AssemblyHolder, err, ctx);
     }
 
     std::string errMsg;
