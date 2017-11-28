@@ -121,8 +121,7 @@ static llvm::cl::opt<ALOpts> OperationMode(
     llvm::cl::values(clEnumValN(ALOpts::write, "write",
                                 "write looops with annotated id mode"),
                      clEnumValN(ALOpts::read, "read",
-                                "read loops with annotated id mode"),
-                     nullptr),
+                                "read loops with annotated id mode")),
     llvm::cl::cat(AnnotateLoopsCategory));
 
 static llvm::cl::opt<unsigned int>
