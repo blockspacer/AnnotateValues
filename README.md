@@ -21,6 +21,7 @@ A (usually up-to-date) generic template for the layout of this repository can be
   tested with:
     - 3.7
     - 3.8
+    - 6.0.0 (trunk)
   - [GCC][4]  
   tested with:
     - 5.4.1
