@@ -167,6 +167,18 @@ static llvm::cl::opt<bool, true>
     Debug("al-debug", llvm::cl::desc("debug annotate loops pass"),
           llvm::cl::location(passDebugFlag),
           llvm::cl::cat(AnnotateLoopsCategory));
+
+LogLevel passLogLevel = LogLevel::info;
+static llvm::cl::opt<LogLevel, true> DebugLevel(
+    "al-debug-level", llvm::cl::desc("debug level for annotate loops pass"),
+    llvm::cl::location(passLogLevel),
+    llvm::cl::values(
+        clEnumValN(LogLevel::info, "info", "informational messages"),
+        clEnumValN(LogLevel::notice, "notice", "significant conditions"),
+        clEnumValN(LogLevel::warning, "warning", "warning conditions"),
+        clEnumValN(LogLevel::error, "error", "error conditions"),
+        clEnumValN(LogLevel::debug, "debug", "debug messages"), nullptr),
+    llvm::cl::cat(AnnotateLoopsCategory));
 #endif // ANNOTATELOOPS_DEBUG
 
 namespace icsa {
@@ -259,6 +271,7 @@ bool AnnotateLoopsPass::runOnModule(llvm::Module &CurModule) {
     std::for_each(LI.begin(), LI.end(),
                   [&workList](llvm::Loop *e) { workList.push_back(e); });
 
+    // TODO this needs documentation
     for (auto i = 0; i < workList.size(); ++i)
       for (auto &e : workList[i]->getSubLoops())
         workList.push_back(e);
