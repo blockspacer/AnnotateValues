@@ -116,72 +116,68 @@ else()
   message(WARNING "package ${JSON_LIB} was not found; skipping.")
 endif()
 
-#find_package(Foo CONFIG)
-
-#if(Foo_FOUND)
-  #set(${PRJ_NAME_UPPER}_USES_FOO 1)
-#else()
-  #set(${PRJ_NAME_UPPER}_USES_FOO 0)
-  #message(WARNING "package Foo was not found; skipping.")
-#endif()
-
 #
 
-set(LIB_NAME "LLVM${PRJ_NAME}Pass")
 set(LIB_SOURCES 
   "lib/AnnotateLoops.cpp"
   "lib/AnnotateLoopsPass.cpp")
 
-if(PRJ_STANDALONE_BUILD)
-  add_library(${LIB_NAME} MODULE ${LIB_SOURCES})
-else()
-  add_llvm_loadable_module(${LIB_NAME} ${LIB_SOURCES})
-endif()
+set(LIB_NAME "LLVM${PRJ_NAME}Pass")
+set(OBJ_LIB_NAME "${LIB_NAME}_obj")
+set(TEST_LIB_NAME "${LIB_NAME}_test")
 
-# according to http://llvm.org/docs/CMake.html
-# we do not need the below library dependencies since the plugin will be loaded
-# via opt or clang which already have those libs in their dependencies
+add_library(${OBJ_LIB_NAME} OBJECT ${LIB_SOURCES})
 
-llvm_map_components_to_libnames(llvm_libs core support analysis passes)
-
-if(llvm_libs)
-  list(GET llvm_libs 0 single_llvm_lib)
-  get_target_property(target_type ${single_llvm_lib} TYPE)
-endif()
-
-if(${target_type} STREQUAL "STATIC_LIBRARY")
-  target_link_libraries(${LIB_NAME} PUBLIC ${llvm_libs})
-endif()
-
-if(nlohmann_json_FOUND)
-  target_link_libraries(${LIB_NAME} PRIVATE ${JSON_LIB})
-endif()
-
-set_target_properties(${LIB_NAME} PROPERTIES 
+set_target_properties(${OBJ_LIB_NAME} PROPERTIES 
   CXX_STANDARD 14
   CXX_STANDARD_REQUIRED ON
   CMAKE_CXX_EXTENSIONS OFF)
 
-target_compile_definitions(${LIB_NAME} PUBLIC ${LLVM_DEFINITIONS})
-target_compile_definitions(${LIB_NAME} PRIVATE VERSION_STRING=${PRJ_VERSION})
+target_compile_definitions(${OBJ_LIB_NAME} PUBLIC ${LLVM_DEFINITIONS})
+target_compile_definitions(${OBJ_LIB_NAME} PRIVATE VERSION_STRING=${PRJ_VERSION})
 
 set(PRJ_DEBUG_VALUE 0)
 if(ANNOTATELOOPS_DEBUG)
   set(PRJ_DEBUG_VALUE 1)
 endif()
 
-target_include_directories(${LIB_NAME} PUBLIC ${LLVM_INCLUDE_DIRS})
-target_include_directories(${LIB_NAME} PUBLIC
+target_include_directories(${OBJ_LIB_NAME} PUBLIC ${LLVM_INCLUDE_DIRS})
+target_include_directories(${OBJ_LIB_NAME} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
-target_include_directories(${LIB_NAME} PUBLIC
+target_include_directories(${OBJ_LIB_NAME} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>)
-target_include_directories(${LIB_NAME} PUBLIC
+target_include_directories(${OBJ_LIB_NAME} PUBLIC
   $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${PATH_PREFIX}/include>)
 
 #
 
-get_property(TRGT_PREFIX TARGET ${LIB_NAME} PROPERTY PREFIX)
-get_property(TRGT_SUFFIX TARGET ${LIB_NAME} PROPERTY SUFFIX)
+add_library(${LIB_NAME} MODULE $<TARGET_OBJECTS:${OBJ_LIB_NAME}>)
+add_library(${TEST_LIB_NAME} STATIC $<TARGET_OBJECTS:${OBJ_LIB_NAME}>)
+
+# according to http://llvm.org/docs/CMake.html
+# we do not need the below library dependencies since the plugin will be loaded
+# via opt or clang which already have those libs in their dependencies
+llvm_map_components_to_libnames(LLVM_LIBS core support analysis passes)
+
+if(LLVM_LIBS)
+  list(GET LLVM_LIBS 0 SINGLE_LLVM_LIB)
+  get_target_property(LLVM_LIB_TARGET_TYPE ${SINGLE_LLVM_LIB} TYPE)
+endif()
+
+if(${LLVM_LIB_TARGET_TYPE} STREQUAL "STATIC_LIBRARY")
+  target_link_libraries(${LIB_NAME} PUBLIC ${LLVM_LIBS})
+  target_link_libraries(${TEST_LIB_NAME} PUBLIC ${LLVM_LIBS})
+endif()
+
+if(nlohmann_json_FOUND)
+  target_link_libraries(${LIB_NAME} PRIVATE ${JSON_LIB})
+  target_link_libraries(${TEST_LIB_NAME} PRIVATE ${JSON_LIB})
+endif()
+
+#
+
+get_property(TRGT_PREFIX TARGET ${TEST_LIB_NAME} PROPERTY PREFIX)
+get_property(TRGT_SUFFIX TARGET ${TEST_LIB_NAME} PROPERTY SUFFIX)
 
 if(NOT TRGT_PREFIX)
   set(TRGT_PREFIX ${CMAKE_SHARED_MODULE_PREFIX})
@@ -195,7 +191,7 @@ endif()
 
 set(TESTEE_PREFIX ${TRGT_PREFIX})
 set(TESTEE_SUFFIX ${TRGT_SUFFIX})
-set(TESTEE_LIB ${LIB_NAME})
+set(TESTEE_LIB ${TEST_LIB_NAME})
 
 add_subdirectory(unittests)
 add_subdirectory(tests)
