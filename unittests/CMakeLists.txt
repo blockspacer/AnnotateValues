@@ -18,7 +18,6 @@ if(NOT GTEST_FOUND)
 endif()
 
 find_package(Threads REQUIRED)
-find_package(Boost REQUIRED)
 
 # configuration
 
@@ -37,7 +36,6 @@ foreach(PRJ_TEST_NAME ${PRJ_TEST_NAMES})
   target_include_directories(${PRJ_TEST_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
   target_include_directories(${PRJ_TEST_NAME} PUBLIC ${GTEST_INCLUDE_DIRS})
   target_include_directories(${PRJ_TEST_NAME} PUBLIC ${LLVM_INCLUDE_DIRS})
-  target_include_directories(${PRJ_TEST_NAME} PUBLIC ${Boost_INCLUDE_DIRS})
   target_include_directories(${PRJ_TEST_NAME} PUBLIC 
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../include>)
   target_include_directories(${PRJ_TEST_NAME} PUBLIC
