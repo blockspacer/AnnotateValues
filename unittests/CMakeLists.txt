@@ -62,14 +62,6 @@ foreach(PRJ_TEST_NAME ${PRJ_TEST_NAMES})
 endforeach()
 
 
-set(PRJ_UNIT_TESTS_SCRIPT "run_unit_tests.sh")
-get_property(PRJ_UNIT_TESTS_TARGET TARGET unittests PROPERTY NAME)
-
-configure_file("${CMAKE_SOURCE_DIR}/utils/scripts/${PRJ_UNIT_TESTS_SCRIPT}.in" 
-  "${CMAKE_BINARY_DIR}/${PRJ_UNIT_TESTS_SCRIPT}"
-  @ONLY)
-
-
 set(TEST_DATA_DIR "${CMAKE_CURRENT_BINARY_DIR}/data")
 file(MAKE_DIRECTORY ${TEST_DATA_DIR})
 
