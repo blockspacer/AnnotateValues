@@ -106,6 +106,14 @@ struct LoopIDAnnotationTestData {
   unsigned nextID;
 };
 
+std::ostream &operator<<(std::ostream &os, const LoopIDAnnotationTestData &td) {
+  auto delim = ' ';
+  return os << delim << "assembly file: " << td.assemblyFile << delim
+            << "is annotated: " << td.isAnnotated << delim
+            << "current id: " << td.currentID << delim
+            << "next id: " << td.nextID << delim;
+}
+
 class AnnotateLoopsTest
     : public IRAssemblyTest,
       public testing::TestWithParam<LoopIDAnnotationTestData> {};
@@ -136,7 +144,7 @@ TEST_P(AnnotateLoopsTest, NoAnnotation) {
   auto *curLoop = *LI.begin();
   al.hasAnnotatedId(*curLoop);
 
-  EXPECT_EQ(al.hasAnnotatedId(*curLoop), true);
+  EXPECT_EQ(al.hasAnnotatedId(*curLoop), false);
 }
 
 INSTANTIATE_TEST_CASE_P(Default, AnnotateLoopsTest,
