@@ -147,9 +147,17 @@ TEST_P(AnnotateLoopsTest, NoAnnotation) {
   EXPECT_EQ(al.hasAnnotatedId(*curLoop), false);
 }
 
-INSTANTIATE_TEST_CASE_P(Default, AnnotateLoopsTest,
+INSTANTIATE_TEST_CASE_P(RegularLoopInstance, AnnotateLoopsTest,
                         testing::Values(LoopIDAnnotationTestData{
                             "test01.ll", false, 2u, 5u}));
+
+INSTANTIATE_TEST_CASE_P(RegularNestedLoopInstance, AnnotateLoopsTest,
+                        testing::Values(LoopIDAnnotationTestData{
+                            "test02.ll", false, 2u, 5u}));
+
+INSTANTIATE_TEST_CASE_P(ExitCallLoopInstance, AnnotateLoopsTest,
+                        testing::Values(LoopIDAnnotationTestData{
+                            "test03.ll", false, 2u, 5u}));
 
 } // namespace anonymous end
 } // namespace icsa end
