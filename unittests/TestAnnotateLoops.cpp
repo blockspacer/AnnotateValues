@@ -2,19 +2,7 @@
 //
 //
 
-#include <memory>
-// using std::unique_ptr
-
-#include <cassert>
-// using assert
-
 #include "llvm/Config/llvm-config.h"
-
-#include "llvm/IR/LLVMContext.h"
-// using llvm::LLVMContext
-
-#include "llvm/IR/Module.h"
-// using llvm::Module
 
 #include "llvm/IR/Function.h"
 // using llvm::Function
@@ -25,100 +13,21 @@
 #include "llvm/Analysis/LoopInfo.h"
 // using llvm::LoopInfo
 
-#include "llvm/Support/SourceMgr.h"
-// using llvm::SMDiagnostic
-
-#include "llvm/AsmParser/Parser.h"
-// using llvm::parseAssemblyFile
-// using llvm::parseAssemblyString
-
-#include "llvm/IR/Verifier.h"
-// using llvm::verifyModule
-
-#include "llvm/Support/ErrorHandling.h"
-// using llvm::report_fatal_error
-
 #include "llvm/Support/raw_ostream.h"
 // using llvm::raw_string_ostream
 
-#include "llvm/ADT/StringRef.h"
-// using llvm::StringRef
-
 #include "gtest/gtest.h"
 // using testing::Test
+
+#include <array>
+// using std::array
+
+#include "TestIRAssemblyParser.hpp"
 
 #include "AnnotateLoops.hpp"
 
 namespace icsa {
 namespace {
-
-class IRAssemblyTest {
-public:
-  IRAssemblyTest() : m_Module{nullptr}, m_TestDataDir{"./unittests/data/"} {
-#if (LLVM_VERSION_MAJOR >= 4) ||                                               \
-    (LLVM_VERSION_MAJOR == 3 && LLVM_VERSION_MINOR >= 9)
-    llvm::Context theContext;
-    m_Context = &theContext;
-#else
-    m_Context = &(llvm::getGlobalContext());
-#endif
-  }
-
-  void parseAssemblyFile(llvm::StringRef AssemblyHolder) {
-    m_Module = llvm::parseAssemblyFile((m_TestDataDir + AssemblyHolder).str(),
-                                       m_Diagnostic, *m_Context);
-
-    report();
-  }
-
-  void parseAssemblyString(llvm::StringRef AssemblyHolder) {
-    m_Module =
-        llvm::parseAssemblyString(AssemblyHolder, m_Diagnostic, *m_Context);
-
-    report();
-  }
-
-protected:
-  void report() {
-    std::string msg;
-    llvm::raw_string_ostream os(msg);
-    m_Diagnostic.print("", os);
-
-    if (llvm::verifyModule(*m_Module, &(llvm::errs())))
-      llvm::report_fatal_error("module verification failed\n");
-
-    if (!m_Module)
-      llvm::report_fatal_error(os.str().c_str());
-  }
-
-  std::unique_ptr<llvm::Module> m_Module;
-  const char *m_TestDataDir;
-  llvm::LLVMContext *m_Context;
-  llvm::SMDiagnostic m_Diagnostic;
-};
-
-//
-
-struct LoopIdAnnotationTestData {
-  std::string assemblyFile;
-  bool isAnnotated;
-  unsigned currentId;
-  unsigned nextId;
-};
-
-std::ostream &operator<<(std::ostream &os, const LoopIdAnnotationTestData &td) {
-  auto delim = ' ';
-  return os << delim << "assembly file: " << td.assemblyFile << delim
-            << "is annotated: " << td.isAnnotated << delim
-            << "current id: " << td.currentId << delim
-            << "next id: " << td.nextId << delim;
-}
-
-class AnnotateLoopsTest
-    : public IRAssemblyTest,
-      public testing::TestWithParam<LoopIdAnnotationTestData> {};
-
-//
 
 static llvm::LoopInfo calculateLoopInfo(llvm::Function &Func) {
   llvm::DominatorTree DT;
@@ -135,6 +44,23 @@ static llvm::LoopInfo calculateLoopInfo(llvm::Function &Func) {
   return LI;
 }
 
+struct AnnotateLoopsTestData {
+  std::string assemblyFile;
+  unsigned nextId;
+};
+
+std::ostream &operator<<(std::ostream &os, const AnnotateLoopsTestData &td) {
+  auto delim = ' ';
+  return os << delim << "assembly file: " << td.assemblyFile << delim
+            << "next id: " << td.nextId << delim;
+}
+
+class AnnotateLoopsTest : public TestIRAssemblyParser,
+                          public testing::TestWithParam<AnnotateLoopsTestData> {
+};
+
+//
+
 TEST_P(AnnotateLoopsTest, NoAnnotation) {
   auto td = GetParam();
   AnnotateLoops al{2, 3};
@@ -144,21 +70,16 @@ TEST_P(AnnotateLoopsTest, NoAnnotation) {
   auto *curLoop = *LI.begin();
   al.hasAnnotatedId(*curLoop);
 
-  EXPECT_EQ(al.hasAnnotatedId(*curLoop), td.isAnnotated);
+  EXPECT_EQ(al.hasAnnotatedId(*curLoop), false);
   EXPECT_EQ(al.getId(), td.nextId);
 }
 
-INSTANTIATE_TEST_CASE_P(RegularLoopInstance, AnnotateLoopsTest,
-                        testing::Values(LoopIdAnnotationTestData{
-                            "regular_loop.ll", false, 2u, 5u}));
+std::array<AnnotateLoopsTestData, 3> testData = {"regular_loop.ll",        2u,
+                                                 "regular_nested_loop.ll", 2u,
+                                                 "exit_call_loop.ll",      2u};
 
-INSTANTIATE_TEST_CASE_P(RegularNestedLoopInstance, AnnotateLoopsTest,
-                        testing::Values(LoopIdAnnotationTestData{
-                            "regular_nested_loop.ll", false, 2u, 5u}));
-
-INSTANTIATE_TEST_CASE_P(ExitCallLoopInstance, AnnotateLoopsTest,
-                        testing::Values(LoopIdAnnotationTestData{
-                            "exit_call_loop.ll", false, 2u, 5u}));
+INSTANTIATE_TEST_CASE_P(DefaultInstance, AnnotateLoopsTest,
+                        testing::ValuesIn(testData));
 
 } // namespace anonymous end
 } // namespace icsa end
