@@ -189,7 +189,8 @@ endif()
 
 set(TESTEE_PREFIX ${TRGT_PREFIX})
 set(TESTEE_SUFFIX ${TRGT_SUFFIX})
-set(TESTEE_LIB ${TEST_LIB_NAME})
+set(UNIT_TESTEE_LIB ${TEST_LIB_NAME})
+set(LIT_TESTEE_LIB ${LIB_NAME})
 
 add_subdirectory(unittests)
 add_subdirectory(tests)
