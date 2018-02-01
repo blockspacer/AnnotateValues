@@ -26,7 +26,7 @@ add_custom_target(unittests)
 
 set(PRJ_TEST_NAME Test${PRJ_NAME})
 
-set(TEST_SOURCES TestAnnotateLoops.cpp)
+set(TEST_SOURCES BasicTests.cpp)
 
 add_executable(${PRJ_TEST_NAME} ${TEST_SOURCES})
 
