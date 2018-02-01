@@ -8,6 +8,7 @@ if(ANNOTATELOOPS_SKIP_TESTS)
   return()
 endif()
 
+enable_testing()
 
 find_package(GTest)
 
