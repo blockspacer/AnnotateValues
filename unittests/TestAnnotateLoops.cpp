@@ -99,24 +99,24 @@ protected:
 
 //
 
-struct LoopIDAnnotationTestData {
+struct LoopIdAnnotationTestData {
   std::string assemblyFile;
   bool isAnnotated;
-  unsigned currentID;
-  unsigned nextID;
+  unsigned currentId;
+  unsigned nextId;
 };
 
-std::ostream &operator<<(std::ostream &os, const LoopIDAnnotationTestData &td) {
+std::ostream &operator<<(std::ostream &os, const LoopIdAnnotationTestData &td) {
   auto delim = ' ';
   return os << delim << "assembly file: " << td.assemblyFile << delim
             << "is annotated: " << td.isAnnotated << delim
-            << "current id: " << td.currentID << delim
-            << "next id: " << td.nextID << delim;
+            << "current id: " << td.currentId << delim
+            << "next id: " << td.nextId << delim;
 }
 
 class AnnotateLoopsTest
     : public IRAssemblyTest,
-      public testing::TestWithParam<LoopIDAnnotationTestData> {};
+      public testing::TestWithParam<LoopIdAnnotationTestData> {};
 
 //
 
@@ -144,20 +144,21 @@ TEST_P(AnnotateLoopsTest, NoAnnotation) {
   auto *curLoop = *LI.begin();
   al.hasAnnotatedId(*curLoop);
 
-  EXPECT_EQ(al.hasAnnotatedId(*curLoop), false);
+  EXPECT_EQ(al.hasAnnotatedId(*curLoop), td.isAnnotated);
+  EXPECT_EQ(al.getId(), td.nextId);
 }
 
 INSTANTIATE_TEST_CASE_P(RegularLoopInstance, AnnotateLoopsTest,
-                        testing::Values(LoopIDAnnotationTestData{
-                            "test01.ll", false, 2u, 5u}));
+                        testing::Values(LoopIdAnnotationTestData{
+                            "regular_loop.ll", false, 2u, 5u}));
 
 INSTANTIATE_TEST_CASE_P(RegularNestedLoopInstance, AnnotateLoopsTest,
-                        testing::Values(LoopIDAnnotationTestData{
-                            "test02.ll", false, 2u, 5u}));
+                        testing::Values(LoopIdAnnotationTestData{
+                            "regular_nested_loop.ll", false, 2u, 5u}));
 
 INSTANTIATE_TEST_CASE_P(ExitCallLoopInstance, AnnotateLoopsTest,
-                        testing::Values(LoopIDAnnotationTestData{
-                            "test03.ll", false, 2u, 5u}));
+                        testing::Values(LoopIdAnnotationTestData{
+                            "exit_call_loop.ll", false, 2u, 5u}));
 
 } // namespace anonymous end
 } // namespace icsa end
