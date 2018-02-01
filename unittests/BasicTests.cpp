@@ -55,13 +55,13 @@ std::ostream &operator<<(std::ostream &os, const AnnotateLoopsTestData &td) {
             << "next id: " << td.nextId << delim;
 }
 
-class AnnotateLoopsTest : public TestIRAssemblyParser,
-                          public testing::TestWithParam<AnnotateLoopsTestData> {
+class NoAnnotationTest : public TestIRAssemblyParser,
+                         public testing::TestWithParam<AnnotateLoopsTestData> {
 };
 
 //
 
-TEST_P(AnnotateLoopsTest, NoAnnotation) {
+TEST_P(NoAnnotationTest, NoAnnotation) {
   auto td = GetParam();
   AnnotateLoops al{2, 3};
 
@@ -74,12 +74,41 @@ TEST_P(AnnotateLoopsTest, NoAnnotation) {
   EXPECT_EQ(al.getId(), td.nextId);
 }
 
-std::array<AnnotateLoopsTestData, 3> testData = {"regular_loop.ll",        2u,
-                                                 "regular_nested_loop.ll", 2u,
-                                                 "exit_call_loop.ll",      2u};
+std::array<AnnotateLoopsTestData, 3> testData1 = {"regular_loop.ll",        2u,
+                                                  "regular_nested_loop.ll", 2u,
+                                                  "exit_call_loop.ll",      2u};
 
-INSTANTIATE_TEST_CASE_P(DefaultInstance, AnnotateLoopsTest,
-                        testing::ValuesIn(testData));
+INSTANTIATE_TEST_CASE_P(DefaultInstance, NoAnnotationTest,
+                        testing::ValuesIn(testData1));
+
+//
+
+class PostAnnotationTest
+    : public TestIRAssemblyParser,
+      public testing::TestWithParam<AnnotateLoopsTestData> {};
+
+TEST_P(PostAnnotationTest, PostAnnotation) {
+  auto td = GetParam();
+  AnnotateLoops al{2, 3};
+
+  parseAssemblyFile(td.assemblyFile);
+  auto LI = calculateLoopInfo(*m_Module->begin());
+
+  for (auto *e : LI)
+    al.annotateWithId(*e);
+
+  auto *curLoop = *LI.begin();
+
+  EXPECT_EQ(al.hasAnnotatedId(*curLoop), true);
+  EXPECT_EQ(al.getId(), td.nextId);
+}
+
+std::array<AnnotateLoopsTestData, 3> testData2 = {"regular_loop.ll",        5u,
+                                                  "regular_nested_loop.ll", 5u,
+                                                  "exit_call_loop.ll",      5u};
+
+INSTANTIATE_TEST_CASE_P(DefaultInstance, PostAnnotationTest,
+                        testing::ValuesIn(testData2));
 
 } // namespace anonymous end
 } // namespace icsa end
