@@ -125,6 +125,7 @@ endif()
 
 # dependencies
 
+find_package(Boost REQUIRED)
 
 
 #
@@ -153,6 +154,7 @@ if(ANNOTATELOOPS_DEBUG)
 endif()
 
 target_include_directories(${OBJ_LIB_NAME} PUBLIC ${LLVM_INCLUDE_DIRS})
+target_include_directories(${OBJ_LIB_NAME} PRIVATE ${Boost_INCLUDE_DIRS})
 target_include_directories(${OBJ_LIB_NAME} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 target_include_directories(${OBJ_LIB_NAME} PUBLIC
