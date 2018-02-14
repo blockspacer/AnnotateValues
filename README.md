@@ -41,8 +41,7 @@ A (usually up-to-date) generic template for the layout of this repository can be
 
 ### Optional
 
-- [nlohmann/json][13]  
-  *To be used* for producing reports in `JSON` format.
+- None.
 
 
 ## How to build

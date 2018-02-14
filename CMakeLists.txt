@@ -104,15 +104,7 @@ endif()
 
 # dependencies
 
-set(JSON_LIB "nlohmann_json")
-find_package(${JSON_LIB} CONFIG)
 
-if(nlohmann_json_FOUND)
-  set(${PRJ_NAME_UPPER}_USES_JSON 1)
-else()
-  set(${PRJ_NAME_UPPER}_USES_JSON 0)
-  message(WARNING "package ${JSON_LIB} was not found; skipping.")
-endif()
 
 #
 
@@ -165,11 +157,6 @@ endif()
 if(${LLVM_LIB_TARGET_TYPE} STREQUAL "STATIC_LIBRARY")
   target_link_libraries(${LIB_NAME} PUBLIC ${LLVM_LIBS})
   target_link_libraries(${TEST_LIB_NAME} PUBLIC ${LLVM_LIBS})
-endif()
-
-if(nlohmann_json_FOUND)
-  target_link_libraries(${LIB_NAME} PRIVATE ${JSON_LIB})
-  target_link_libraries(${TEST_LIB_NAME} PRIVATE ${JSON_LIB})
 endif()
 
 #
