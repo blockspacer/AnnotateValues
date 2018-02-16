@@ -71,7 +71,7 @@
 #include <cstring>
 // using std::strncmp
 
-#define DEBUG_TYPE "annotate_loops"
+#define DEBUG_TYPE "annotateloops"
 
 #define STRINGIFY_UTIL(x) #x
 #define STRINGIFY(x) STRINGIFY_UTIL(x)
@@ -177,6 +177,8 @@ static llvm::cl::opt<LogLevel, true> DebugLevel(
     llvm::cl::cat(AnnotateLoopsCategory));
 #endif // ANNOTATELOOPS_DEBUG
 
+//
+
 namespace icsa {
 
 namespace {
@@ -229,8 +231,6 @@ void ReportStats(const char *Filename) {
 void AnnotateLoopsPass::getAnalysisUsage(llvm::AnalysisUsage &AU) const {
   AU.addRequired<llvm::LoopInfoWrapperPass>();
   AU.setPreservesAll();
-
-  return;
 }
 
 bool AnnotateLoopsPass::runOnModule(llvm::Module &CurModule) {
