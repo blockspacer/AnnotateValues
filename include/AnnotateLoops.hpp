@@ -1,3 +1,6 @@
+//
+//
+//
 
 #ifndef ANNOTATELOOPS_HPP
 #define ANNOTATELOOPS_HPP
@@ -34,6 +37,6 @@ private:
   const char *m_idKey = "icsa.dynapar.loop.id";
 };
 
-} // namespace icsa end
+} // namespace icsa
 
-#endif // ANNOTATELOOPS_HPP
+#endif // header

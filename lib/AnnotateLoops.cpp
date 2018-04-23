@@ -32,6 +32,7 @@
 // using llvm::dyn_cast
 
 #include <cassert>
+// using assert
 
 #include "AnnotateLoops.hpp"
 
