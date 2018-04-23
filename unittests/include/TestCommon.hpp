@@ -43,7 +43,7 @@ static llvm::LoopInfo calculateLoopInfo(llvm::Function &Func) {
 
 struct AnnotateLoopsTestData {
   std::string assemblyFile;
-  AnnotateLoops::LoopID_t nextId;
+  AnnotateLoops::LoopIDTy nextId;
 };
 
 std::ostream &operator<<(std::ostream &os, const AnnotateLoopsTestData &td) {

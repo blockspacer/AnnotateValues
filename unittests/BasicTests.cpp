@@ -30,10 +30,10 @@ TEST_P(NoAnnotationTest, NoAnnotation) {
   parseAssemblyFile(td.assemblyFile);
   auto LI = calculateLoopInfo(*m_Module->begin());
   auto *curLoop = *LI.begin();
-  al.hasAnnotatedId(*curLoop);
+  al.has(*curLoop);
 
-  EXPECT_EQ(al.hasAnnotatedId(*curLoop), false);
-  EXPECT_EQ(al.getId(), td.nextId);
+  EXPECT_EQ(al.has(*curLoop), false);
+  EXPECT_EQ(al.current(), td.nextId);
 }
 
 std::array<AnnotateLoopsTestData, 3> testData1 = {"regular_loop.ll",        2u,
@@ -51,20 +51,20 @@ class PostAnnotationTest
 
 TEST_P(PostAnnotationTest, PostAnnotation) {
   auto td = GetParam();
-  AnnotateLoops::LoopID_t startId = 2;
+  AnnotateLoops::LoopIDTy startId = 2;
   AnnotateLoops al{startId, 3};
 
   parseAssemblyFile(td.assemblyFile);
   auto LI = calculateLoopInfo(*m_Module->begin());
 
   for (auto *e : LI)
-    al.annotateWithId(*e);
+    al.annotate(*e);
 
   auto *curLoop = *LI.begin();
 
-  EXPECT_EQ(al.hasAnnotatedId(*curLoop), true);
-  EXPECT_EQ(al.getId(), td.nextId);
-  EXPECT_EQ(al.getAnnotatedId(*curLoop), startId);
+  EXPECT_EQ(al.has(*curLoop), true);
+  EXPECT_EQ(al.current(), td.nextId);
+  EXPECT_EQ(al.get(*curLoop), startId);
 }
 
 std::array<AnnotateLoopsTestData, 3> testData2 = {"regular_loop.ll",        5u,
@@ -82,25 +82,25 @@ class PostAnnotationNestedTest
 
 TEST_P(PostAnnotationNestedTest, PostAnnotationNested) {
   auto td = GetParam();
-  AnnotateLoops::LoopID_t startId = 2;
+  AnnotateLoops::LoopIDTy startId = 2;
   AnnotateLoops al{startId, 3};
 
   parseAssemblyFile(td.assemblyFile);
   auto LI = calculateLoopInfo(*m_Module->begin());
 
   for (auto *e : LI) {
-    al.annotateWithId(*e);
+    al.annotate(*e);
 
     for (auto k : e->getSubLoops())
       if (k->getLoopDepth() <= 2)
-        al.annotateWithId(*k);
+        al.annotate(*k);
   }
 
   auto *curLoop = *LI.begin();
 
-  EXPECT_EQ(al.hasAnnotatedId(*curLoop), true);
-  EXPECT_EQ(al.getId(), td.nextId);
-  EXPECT_EQ(al.getAnnotatedId(*curLoop), startId);
+  EXPECT_EQ(al.has(*curLoop), true);
+  EXPECT_EQ(al.current(), td.nextId);
+  EXPECT_EQ(al.get(*curLoop), startId);
 }
 
 std::array<AnnotateLoopsTestData, 3> testData3 = {"regular_loop.ll",        5u,

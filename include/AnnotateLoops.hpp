@@ -5,6 +5,14 @@
 #ifndef ANNOTATELOOPS_HPP
 #define ANNOTATELOOPS_HPP
 
+#include "Config.hpp"
+
+#include "llvm/ADT/StringRef.h"
+// using llvm::StringRef
+
+#include <string>
+// using std::string
+
 #include <cstdint>
 // using std::uint32_t
 
@@ -17,24 +25,28 @@ class MDTuple;
 namespace icsa {
 
 struct AnnotateLoops {
-  using LoopID_t = std::uint32_t;
+  using LoopIDTy = std::uint32_t;
 
-  AnnotateLoops(LoopID_t startId = 1, LoopID_t idInterval = 1)
-      : m_currentId(startId), m_idInterval(idInterval) {}
+  AnnotateLoops(LoopIDTy StartID = 1, LoopIDTy IDInterval = 1,
+                llvm::StringRef IDKey = "icsa.dynapar.loop.id")
+      : CurrentID(StartID), IDInterval(IDInterval), IDKey(IDKey.str()) {}
 
-  void annotateWithId(llvm::Loop &CurLoop);
+  void annotate(llvm::Loop &CurLoop);
 
-  bool hasAnnotatedId(const llvm::Loop &CurLoop) const;
-  LoopID_t getAnnotatedId(const llvm::Loop &CurLoop) const;
-  LoopID_t getId() const { return m_currentId; }
+  bool has(const llvm::Loop &CurLoop) const;
+  LoopIDTy get(const llvm::Loop &CurLoop) const;
+  LoopIDTy current() const { return CurrentID; }
+  llvm::StringRef key() const noexcept { return IDKey; }
 
 private:
-  const llvm::Metadata *getAnnotatedIdNode(const llvm::Metadata *node) const;
-  const llvm::MDTuple *getAnnotatedIdNode(const llvm::Loop &CurLoop) const;
+  void next() noexcept { CurrentID += IDInterval; }
 
-  LoopID_t m_currentId;
-  const LoopID_t m_idInterval;
-  const char *m_idKey = "icsa.dynapar.loop.id";
+  const llvm::Metadata *getNode(const llvm::Metadata *node) const;
+  const llvm::MDTuple *getNode(const llvm::Loop &CurLoop) const;
+
+  LoopIDTy CurrentID;
+  const LoopIDTy IDInterval;
+  const std::string IDKey;
 };
 
 } // namespace icsa

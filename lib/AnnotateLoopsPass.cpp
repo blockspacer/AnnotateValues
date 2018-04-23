@@ -185,14 +185,14 @@ namespace {
 
 using FunctionName_t = std::string;
 using LoopIdRange_t =
-    std::pair<AnnotateLoops::LoopID_t, AnnotateLoops::LoopID_t>;
+    std::pair<AnnotateLoops::LoopIDTy, AnnotateLoops::LoopIDTy>;
 using LineNumber_t = unsigned long;
 using FileName_t = std::string;
 
 long NumFunctionsProcessed = 0;
 std::map<FunctionName_t, LoopIdRange_t> FunctionsAltered;
 
-std::map<AnnotateLoops::LoopID_t,
+std::map<AnnotateLoops::LoopIDTy,
          std::tuple<FunctionName_t, LineNumber_t, FileName_t>> LoopsAnnotated;
 
 void ReportStats(const char *Filename) {
@@ -278,12 +278,12 @@ bool AnnotateLoopsPass::runOnModule(llvm::Module &CurModule) {
           return d > LoopDepthThreshold;
         }), workList.end());
 
-    auto rangeStart = annotator.getId();
+    auto rangeStart = annotator.current();
 
-    if (ALOpts::write == OperationMode)
+    if (ALOpts::write == OperationMode) {
       for (auto *e : workList) {
-        auto id = annotator.getId();
-        annotator.annotateWithId(*e);
+        auto id = annotator.current();
+        annotator.annotate(*e);
 
         if (shouldReportStats) {
           LineNumber_t line = 0;
@@ -300,16 +300,19 @@ bool AnnotateLoopsPass::runOnModule(llvm::Module &CurModule) {
               id, std::make_tuple(CurFunc.getName().str(), line, filename));
         }
       }
-    else
-      for (auto *e : workList)
-        if (annotator.hasAnnotatedId(*e)) {
-          auto id = annotator.getAnnotatedId(*e);
+    } else {
+      for (auto *e : workList) {
+        if (annotator.has(*e)) {
+          auto id = annotator.get(*e);
 
-          if (shouldReportStats)
+          if (shouldReportStats) {
             LoopsAnnotated.emplace(id, CurFunc.getName().str());
+          }
         }
+      }
+    }
 
-    auto rangeOpenEnd = annotator.getId();
+    auto rangeOpenEnd = annotator.current();
 
     if (shouldReportStats && ALOpts::write == OperationMode &&
         workList.size()) {
