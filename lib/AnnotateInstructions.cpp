@@ -50,17 +50,21 @@ AnnotateInstructions::get(const llvm::Instruction &CurInstruction) const {
   return IDConstant.getLimitedValue();
 }
 
-void AnnotateInstructions::annotate(llvm::Instruction &CurInstruction) {
+AnnotateInstructions::InstructionIDTy
+AnnotateInstructions::annotate(llvm::Instruction &CurInstruction) {
   auto &curContext = CurInstruction.getParent()->getParent()->getContext();
   llvm::MDBuilder builder{curContext};
 
   auto *intType = llvm::Type::getInt32Ty(curContext);
+  auto curID = current();
   llvm::SmallVector<llvm::Metadata *, 1> IDValues{
-      builder.createConstant(llvm::ConstantInt::get(intType, current()))};
+      builder.createConstant(llvm::ConstantInt::get(intType, curID))};
 
   next();
 
   CurInstruction.setMetadata(key(), llvm::MDNode::get(curContext, IDValues));
+
+  return curID;
 }
 
 } // namespace icsa

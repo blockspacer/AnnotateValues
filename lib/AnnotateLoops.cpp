@@ -104,17 +104,18 @@ AnnotateLoops::LoopIDTy AnnotateLoops::get(const llvm::Loop &CurLoop) const {
   return IDConstant.getLimitedValue();
 }
 
-void AnnotateLoops::annotate(llvm::Loop &CurLoop) {
+AnnotateLoops::LoopIDTy AnnotateLoops::annotate(llvm::Loop &CurLoop) {
   auto &curContext =
       CurLoop.getHeader()->getParent()->getParent()->getContext();
   llvm::MDBuilder loopMDBuilder(curContext);
   llvm::SmallVector<llvm::Metadata *, 2> loopIDValues;
 
   // create loop metadata node with custom id
+  auto curID = current();
   loopIDValues.push_back(loopMDBuilder.createString(key()));
   auto *intType = llvm::Type::getInt32Ty(curContext);
   loopIDValues.push_back(
-      loopMDBuilder.createConstant(llvm::ConstantInt::get(intType, CurrentID)));
+      loopMDBuilder.createConstant(llvm::ConstantInt::get(intType, curID)));
 
   next();
 
@@ -138,6 +139,8 @@ void AnnotateLoops::annotate(llvm::Loop &CurLoop) {
   newLoopIdMD->replaceOperandWith(0, newLoopIdMD);
 
   CurLoop.setLoopID(newLoopIdMD);
+
+  return curID;
 }
 
 } // namespace icsa

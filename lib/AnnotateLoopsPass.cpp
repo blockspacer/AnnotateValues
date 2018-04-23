@@ -282,8 +282,7 @@ bool AnnotateLoopsPass::runOnModule(llvm::Module &CurModule) {
 
     if (ALOpts::write == OperationMode) {
       for (auto *e : workList) {
-        auto id = annotator.current();
-        annotator.annotate(*e);
+        auto id = annotator.annotate(*e);
 
         if (shouldReportStats) {
           LineNumberTy line = 0;

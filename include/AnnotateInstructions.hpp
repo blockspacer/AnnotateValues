@@ -37,7 +37,7 @@ struct AnnotateInstructions {
   AnnotateInstructions(const AnnotateInstructions &) = delete;
   AnnotateInstructions(AnnotateInstructions &&) = delete;
 
-  void annotate(llvm::Instruction &CurInstruction) noexcept;
+  InstructionIDTy annotate(llvm::Instruction &CurInstruction) noexcept;
   bool has(const llvm::Instruction &CurInstruction) const noexcept;
   InstructionIDTy get(const llvm::Instruction &CurInstruction) const noexcept;
   InstructionIDTy current() const noexcept { return CurrentID; }

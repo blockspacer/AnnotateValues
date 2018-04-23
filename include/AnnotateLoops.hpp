@@ -31,7 +31,7 @@ struct AnnotateLoops {
                 llvm::StringRef IDKey = "icsa.dynapar.loop.id")
       : CurrentID(StartID), IDInterval(IDInterval), IDKey(IDKey.str()) {}
 
-  void annotate(llvm::Loop &CurLoop);
+  LoopIDTy annotate(llvm::Loop &CurLoop);
 
   bool has(const llvm::Loop &CurLoop) const;
   LoopIDTy get(const llvm::Loop &CurLoop) const;
