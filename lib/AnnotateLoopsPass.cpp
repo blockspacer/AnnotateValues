@@ -26,6 +26,9 @@
 // using llvm::PassManagerBuilder
 // using llvm::RegisterStandardPasses
 
+#include "llvm/ADT/StringRef.h"
+// using llvm::StringRef
+
 #include "llvm/ADT/SmallVector.h"
 // using llvm::SmallVector
 
@@ -198,7 +201,7 @@ std::map<FunctionNameTy, LoopIDRange> FunctionsAltered;
 std::map<AnnotateLoops::LoopIDTy,
          std::tuple<FunctionNameTy, LineNumberTy, FileNameTy>> LoopsAnnotated;
 
-void ReportStats(const char *Filename) {
+void ReportStats(llvm::StringRef Filename) {
   std::error_code err;
   llvm::raw_fd_ostream report(Filename, err, llvm::sys::fs::F_Text);
 
@@ -320,7 +323,7 @@ bool AnnotateLoopsPass::runOnModule(llvm::Module &CurModule) {
   }
 
   if (shouldReportStats) {
-    ReportStats(ReportStatsFilename.c_str());
+    ReportStats(ReportStatsFilename);
   }
 
   return hasChanged;
