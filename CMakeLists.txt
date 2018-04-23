@@ -132,6 +132,7 @@ find_package(Boost REQUIRED)
 
 set(LIB_SOURCES
   "lib/AnnotateLoops.cpp"
+  "lib/AnnotateInstructions.cpp"
   "lib/AnnotateLoopsPass.cpp")
 
 set(LIB_NAME "LLVM${PRJ_NAME}Pass")
