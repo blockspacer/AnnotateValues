@@ -16,7 +16,6 @@
 // using llvm::Module
 
 #include "llvm/Analysis/LoopInfo.h"
-// using llvm::LoopInfoWrapperPass
 // using llvm::LoopInfo
 // using llvm::Loop
 
@@ -70,6 +69,9 @@
 
 #include <cstring>
 // using std::strncmp
+
+#include <cstdint>
+// using std::uint64_t
 
 #define DEBUG_TYPE "annotateloops"
 
@@ -183,31 +185,31 @@ namespace icsa {
 
 namespace {
 
-using FunctionName_t = std::string;
-using LoopIdRange_t =
-    std::pair<AnnotateLoops::LoopIDTy, AnnotateLoops::LoopIDTy>;
-using LineNumber_t = unsigned long;
-using FileName_t = std::string;
+using FunctionNameTy = std::string;
+using LoopIDRange = std::pair<AnnotateLoops::LoopIDTy, AnnotateLoops::LoopIDTy>;
+using LineNumberTy = std::uint64_t;
+using FileNameTy = std::string;
 
-long NumFunctionsProcessed = 0;
-std::map<FunctionName_t, LoopIdRange_t> FunctionsAltered;
+std::uint64_t NumFunctionsProcessed = 0;
+std::map<FunctionNameTy, LoopIDRange> FunctionsAltered;
 
 std::map<AnnotateLoops::LoopIDTy,
-         std::tuple<FunctionName_t, LineNumber_t, FileName_t>> LoopsAnnotated;
+         std::tuple<FunctionNameTy, LineNumberTy, FileNameTy>> LoopsAnnotated;
 
 void ReportStats(const char *Filename) {
   std::error_code err;
   llvm::raw_fd_ostream report(Filename, err, llvm::sys::fs::F_Text);
 
-  if (err)
+  if (err) {
     llvm::errs() << "could not open file: \"" << Filename
                  << "\" reason: " << err.message() << "\n";
-  else {
+  } else {
     report << NumFunctionsProcessed << "\n";
 
-    for (const auto &e : FunctionsAltered)
+    for (const auto &e : FunctionsAltered) {
       report << e.first << " " << e.second.first << " " << e.second.second
              << "\n";
+    }
 
     report << "--\n";
 
@@ -226,12 +228,7 @@ void ReportStats(const char *Filename) {
   return;
 }
 
-} // namespace anonymous end
-
-void AnnotateLoopsPass::getAnalysisUsage(llvm::AnalysisUsage &AU) const {
-  AU.addRequired<llvm::LoopInfoWrapperPass>();
-  AU.setPreservesAll();
-}
+} // namespace anonymous
 
 bool AnnotateLoopsPass::runOnModule(llvm::Module &CurModule) {
   bool shouldReportStats = !ReportStatsFilename.empty();
@@ -245,20 +242,21 @@ bool AnnotateLoopsPass::runOnModule(llvm::Module &CurModule) {
     if (funcWhiteListFile.is_open()) {
       funcWhiteList.addRegex(funcWhiteListFile);
       funcWhiteListFile.close();
-    } else
+    } else {
       llvm::errs() << "could not open file: \'" << FuncWhiteListFilename
                    << "\'\n";
+    }
   }
 
   llvm::SmallVector<llvm::Loop *, 16> workList;
   AnnotateLoops annotator{LoopStartId, LoopIdInterval};
 
   for (auto &CurFunc : CurModule) {
-    if (useFuncWhitelist && !funcWhiteList.matches(CurFunc.getName().data()))
+    if (CurFunc.isDeclaration() ||
+        (useFuncWhitelist &&
+         !funcWhiteList.matches(CurFunc.getName().data()))) {
       continue;
-
-    if (CurFunc.isDeclaration())
-      continue;
+    }
 
     NumFunctionsProcessed++;
     workList.clear();
@@ -268,9 +266,11 @@ bool AnnotateLoopsPass::runOnModule(llvm::Module &CurModule) {
                   [&workList](llvm::Loop *e) { workList.push_back(e); });
 
     // TODO this needs documentation
-    for (auto i = 0; i < workList.size(); ++i)
-      for (auto &e : workList[i]->getSubLoops())
+    for (auto i = 0; i < workList.size(); ++i) {
+      for (auto &e : workList[i]->getSubLoops()) {
         workList.push_back(e);
+      }
+    }
 
     workList.erase(
         std::remove_if(workList.begin(), workList.end(), [](const auto *e) {
@@ -286,8 +286,8 @@ bool AnnotateLoopsPass::runOnModule(llvm::Module &CurModule) {
         annotator.annotate(*e);
 
         if (shouldReportStats) {
-          LineNumber_t line = 0;
-          FileName_t filename;
+          LineNumberTy line = 0;
+          FileNameTy filename;
 
           if (ReportLoopLineNumbers) {
             line = e->getStartLoc().getLine();
@@ -322,10 +322,11 @@ bool AnnotateLoopsPass::runOnModule(llvm::Module &CurModule) {
     }
   }
 
-  if (shouldReportStats)
+  if (shouldReportStats) {
     ReportStats(ReportStatsFilename.c_str());
+  }
 
   return hasChanged;
 }
 
-} // namespace icsa end
+} // namespace icsa

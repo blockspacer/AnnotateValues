@@ -12,6 +12,9 @@
 // using llvm::AnalysisUsage
 // using llvm::RegisterPass
 
+#include "llvm/Analysis/LoopInfo.h"
+// using llvm::LoopInfoWrapperPass
+
 namespace llvm {
 class Module;
 class AnalysisUsage;
@@ -21,11 +24,15 @@ namespace icsa {
 
 struct AnnotateLoopsPass : public llvm::ModulePass {
   static char ID;
-  unsigned int m_LoopID;
+  unsigned int LoopID;
 
-  AnnotateLoopsPass() : llvm::ModulePass(ID), m_LoopID(0) {}
+  AnnotateLoopsPass() : llvm::ModulePass(ID), LoopID(0) {}
 
-  void getAnalysisUsage(llvm::AnalysisUsage &AU) const override;
+  void getAnalysisUsage(llvm::AnalysisUsage &AU) const override {
+    AU.addRequired<llvm::LoopInfoWrapperPass>();
+    AU.setPreservesAll();
+  }
+
   bool runOnModule(llvm::Module &CurModule) override;
 };
 
