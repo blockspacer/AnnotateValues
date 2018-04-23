@@ -10,6 +10,9 @@
 #include "llvm/ADT/StringRef.h"
 // using llvm::StringRef
 
+#include <string>
+// using std::string
+
 #include <cstdint>
 // using std::uint32_t
 
