@@ -7,6 +7,8 @@
 
 #include "Config.hpp"
 
+#include "AnnotateLoops.hpp"
+
 #include "llvm/Pass.h"
 // using llvm::ModulePass
 // using llvm::AnalysisUsage
@@ -18,13 +20,13 @@
 namespace llvm {
 class Module;
 class AnalysisUsage;
-} // namespace llvm end
+} // namespace llvm
 
 namespace icsa {
 
 struct AnnotateLoopsPass : public llvm::ModulePass {
   static char ID;
-  unsigned int LoopID;
+  AnnotateLoops::LoopIDTy LoopID;
 
   AnnotateLoopsPass() : llvm::ModulePass(ID), LoopID(0) {}
 
@@ -36,6 +38,6 @@ struct AnnotateLoopsPass : public llvm::ModulePass {
   bool runOnModule(llvm::Module &CurModule) override;
 };
 
-} // namespace icsa end
+} // namespace icsa
 
-#endif // ANNOTATELOOPSPASS_HPP
+#endif // header

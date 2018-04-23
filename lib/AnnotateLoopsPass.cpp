@@ -77,7 +77,7 @@
 #include <cstdint>
 // using std::uint64_t
 
-#define DEBUG_TYPE "annotateloops"
+#define DEBUG_TYPE "annotate-loops"
 
 #define STRINGIFY_UTIL(x) #x
 #define STRINGIFY(x) STRINGIFY_UTIL(x)
@@ -101,8 +101,6 @@ static llvm::RegisterPass<icsa::AnnotateLoopsPass>
 static void registerAnnotateLoopsPass(const llvm::PassManagerBuilder &Builder,
                                       llvm::legacy::PassManagerBase &PM) {
   PM.add(new icsa::AnnotateLoopsPass());
-
-  return;
 }
 
 static llvm::RegisterStandardPasses
@@ -116,15 +114,15 @@ static llvm::cl::OptionCategory
                           "Options for AnnotateLoops pass");
 
 enum struct ALOpts {
-  write,
-  read,
+  Write,
+  Read,
 };
 
 static llvm::cl::opt<ALOpts> OperationMode(
-    "al-mode", llvm::cl::desc("operation mode"), llvm::cl::init(ALOpts::write),
-    llvm::cl::values(clEnumValN(ALOpts::write, "write",
-                                "write looops with annotated id mode"),
-                     clEnumValN(ALOpts::read, "read",
+    "al-mode", llvm::cl::desc("operation mode"), llvm::cl::init(ALOpts::Write),
+    llvm::cl::values(clEnumValN(ALOpts::Write, "Write",
+                                "write loops with annotated id mode"),
+                     clEnumValN(ALOpts::Read, "Read",
                                 "read loops with annotated id mode")
 // clang-format off
 #if (LLVM_VERSION_MAJOR <= 3 && LLVM_VERSION_MINOR < 9)
@@ -228,8 +226,6 @@ void ReportStats(const char *Filename) {
       report << '\n';
     }
   }
-
-  return;
 }
 
 } // namespace anonymous
@@ -283,7 +279,7 @@ bool AnnotateLoopsPass::runOnModule(llvm::Module &CurModule) {
 
     auto rangeStart = annotator.current();
 
-    if (ALOpts::write == OperationMode && workList.size()) {
+    if (ALOpts::Write == OperationMode && workList.size()) {
       for (auto *e : workList) {
         auto id = annotator.annotate(*e);
 
@@ -304,7 +300,7 @@ bool AnnotateLoopsPass::runOnModule(llvm::Module &CurModule) {
       }
     }
 
-    if (ALOpts::read == OperationMode && shouldReportStats) {
+    if (ALOpts::Read == OperationMode && shouldReportStats) {
       auto pred = [&](const auto *e) {
         if (annotator.has(*e))
           LoopsAnnotated.emplace(annotator.get(*e), CurFunc.getName().str());
@@ -315,7 +311,7 @@ bool AnnotateLoopsPass::runOnModule(llvm::Module &CurModule) {
 
     auto rangeEnd = annotator.current();
 
-    if (shouldReportStats && ALOpts::write == OperationMode &&
+    if (shouldReportStats && ALOpts::Write == OperationMode &&
         workList.size()) {
       FunctionsAltered.emplace(CurFunc.getName(),
                                std::make_pair(rangeStart, rangeEnd));
