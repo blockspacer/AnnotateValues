@@ -42,7 +42,7 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
 endif()
 
 if(NOT ANNOTATELOOPS_EXPORT)
-  message(FATAL_ERROR 
+  message(FATAL_ERROR
     "ANNOTATELOOPS_EXPORT must be defined when built as dependent project")
 endif()
 
@@ -67,7 +67,7 @@ handle_llvm_dependency(${PRJ_STANDALONE_BUILD})
 set(PRJ_SHARED_MODE "STATIC")
 
 if(NOT DEFINED BUILD_SHARED_LIBS)
-  detect_llvm_shared_mode(SHARED_MODE shared_mode 
+  detect_llvm_shared_mode(SHARED_MODE shared_mode
     LLVM_VERSION ${LLVM_PACKAGE_VERSION})
   string(TOUPPER ${shared_mode} shared_mode)
 
@@ -116,9 +116,9 @@ if(PRJ_STANDALONE_BUILD)
   set(PRJ_LINKER_FLAGS "${PRJ_LINKER_FLAGS} -Wl,--disable-new-dtags")
 
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${PRJ_LINKER_FLAGS}")
-  set(CMAKE_SHARED_LINKER_FLAGS 
+  set(CMAKE_SHARED_LINKER_FLAGS
     "${CMAKE_SHARED_LINKER_FLAGS} ${PRJ_LINKER_FLAGS}")
-  set(CMAKE_MODULE_LINKER_FLAGS 
+  set(CMAKE_MODULE_LINKER_FLAGS
     "${CMAKE_MODULE_LINKER_FLAGS} ${PRJ_LINKER_FLAGS}")
 endif()
 
@@ -130,7 +130,7 @@ find_package(Boost REQUIRED)
 
 #
 
-set(LIB_SOURCES 
+set(LIB_SOURCES
   "lib/AnnotateLoops.cpp"
   "lib/AnnotateLoopsPass.cpp")
 
@@ -140,13 +140,14 @@ set(TEST_LIB_NAME "${LIB_NAME}_test")
 
 add_library(${OBJ_LIB_NAME} OBJECT ${LIB_SOURCES})
 
-set_target_properties(${OBJ_LIB_NAME} PROPERTIES 
+set_target_properties(${OBJ_LIB_NAME} PROPERTIES
   CXX_STANDARD 14
   CXX_STANDARD_REQUIRED ON
   CXX_EXTENSIONS OFF)
 
 target_compile_definitions(${OBJ_LIB_NAME} PUBLIC ${LLVM_DEFINITIONS})
-target_compile_definitions(${OBJ_LIB_NAME} PRIVATE VERSION_STRING=${PRJ_VERSION})
+target_compile_definitions(${OBJ_LIB_NAME}
+  PRIVATE VERSION_STRING=${PRJ_VERSION})
 
 set(PRJ_DEBUG_VALUE 0)
 if(ANNOTATELOOPS_DEBUG)
@@ -262,10 +263,11 @@ write_basic_package_version_file(
   "${CMAKE_CURRENT_BINARY_DIR}/share/cmake/${PRJ_NAME_LOWER}-config-version.cmake"
   VERSION ${PRJ_VERSION_SHORT} COMPATIBILITY SameMajorVersion)
 
-install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/" 
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/"
   DESTINATION ${PRJ_INSTALL_INCLUDE_DIR}
   PATTERN "*.in" EXCLUDE)
-install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include/" 
+
+install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include/"
   DESTINATION ${PRJ_INSTALL_INCLUDE_DIR})
 
 if(PRJ_STANDALONE_BUILD)
@@ -274,6 +276,7 @@ if(PRJ_STANDALONE_BUILD)
 endif()
 
 if(PRJ_STANDALONE_BUILD)
-  install(EXPORT ${ANNOTATELOOPS_EXPORT} DESTINATION "${PRJ_INSTALL_SHARE_DIR}/cmake")
+  install(EXPORT ${ANNOTATELOOPS_EXPORT}
+    DESTINATION "${PRJ_INSTALL_SHARE_DIR}/cmake")
 endif()
 
