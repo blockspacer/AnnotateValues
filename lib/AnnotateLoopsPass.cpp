@@ -45,7 +45,11 @@
 // using llvm::DIScope
 
 #include <algorithm>
+// using std::copy
 // using std::for_each
+
+#include <iterator>
+// using std::back_inserter
 
 #include <string>
 // using std::string
@@ -262,8 +266,7 @@ bool AnnotateLoopsPass::runOnModule(llvm::Module &CurModule) {
     workList.clear();
     auto &LI = getAnalysis<llvm::LoopInfoWrapperPass>(CurFunc).getLoopInfo();
 
-    std::for_each(LI.begin(), LI.end(),
-                  [&workList](llvm::Loop *e) { workList.push_back(e); });
+    std::copy(LI.begin(), LI.end(), std::back_inserter(workList));
 
     // TODO this needs documentation
     for (auto i = 0; i < workList.size(); ++i) {
@@ -280,7 +283,7 @@ bool AnnotateLoopsPass::runOnModule(llvm::Module &CurModule) {
 
     auto rangeStart = annotator.current();
 
-    if (ALOpts::write == OperationMode) {
+    if (ALOpts::write == OperationMode && workList.size()) {
       for (auto *e : workList) {
         auto id = annotator.annotate(*e);
 
@@ -299,24 +302,23 @@ bool AnnotateLoopsPass::runOnModule(llvm::Module &CurModule) {
               id, std::make_tuple(CurFunc.getName().str(), line, filename));
         }
       }
-    } else {
-      for (auto *e : workList) {
-        if (annotator.has(*e)) {
-          auto id = annotator.get(*e);
-
-          if (shouldReportStats) {
-            LoopsAnnotated.emplace(id, CurFunc.getName().str());
-          }
-        }
-      }
     }
 
-    auto rangeOpenEnd = annotator.current();
+    if (ALOpts::read == OperationMode && shouldReportStats) {
+      auto pred = [&](const auto *e) {
+        if (annotator.has(*e))
+          LoopsAnnotated.emplace(annotator.get(*e), CurFunc.getName().str());
+      };
+
+      std::for_each(workList.begin(), workList.end(), pred);
+    }
+
+    auto rangeEnd = annotator.current();
 
     if (shouldReportStats && ALOpts::write == OperationMode &&
         workList.size()) {
       FunctionsAltered.emplace(CurFunc.getName(),
-                               std::make_pair(rangeStart, rangeOpenEnd));
+                               std::make_pair(rangeStart, rangeEnd));
       hasChanged = true;
     }
   }
