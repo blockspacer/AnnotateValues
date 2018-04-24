@@ -37,6 +37,9 @@
 // using llvm::cl::cat
 // using llvm::cl::OptionCategory
 
+#include "llvm/Support/ErrorHandling.h"
+// using llvm_unreachable
+
 #include <algorithm>
 // using std::for_each
 // using std::any_of
@@ -159,7 +162,7 @@ template <typename T> decltype(auto) make_inst_range(T &&Unit) {
                           llvm::inst_end(std::forward<T>(Unit)));
 }
 
-} // namespace unnamed
+} // namespace
 
 bool AnnotateInstructionsPass::runOnModule(llvm::Module &CurModule) {
   bool shouldReportStats = !ReportStatsFilename.empty();
@@ -180,8 +183,6 @@ bool AnnotateInstructionsPass::runOnModule(llvm::Module &CurModule) {
     }
   }
 
-  AnnotateInstructions annotator{StartId, IdInterval};
-
   for (auto &CurFunc : CurModule) {
     if (CurFunc.isDeclaration() ||
         (useFuncWhitelist &&
@@ -192,24 +193,27 @@ bool AnnotateInstructionsPass::runOnModule(llvm::Module &CurModule) {
     auto instructions = make_inst_range(CurFunc);
 
     if (AIOpts::Write == OperationMode) {
+      AnnotateInstructions::Writer writer{StartId, IdInterval};
+
       for (auto &e : instructions) {
         hasChanged |= true;
-        annotator.annotate(e);
+        writer.put(e);
       }
 
       if (shouldReportStats && instructions.begin() != instructions.end()) {
         Stats.addProcessedFunction(CurFunc.getName());
       }
     } else if (AIOpts::Read == OperationMode && shouldReportStats) {
-      bool hasAnnotation =
-          std::any_of(instructions.begin(), instructions.end(),
-                      [&](auto &e) { return annotator.has(e); });
+      AnnotateInstructions::Reader reader{};
+
+      bool hasAnnotation = std::any_of(instructions.begin(), instructions.end(),
+                                       [&](auto &e) { return reader.has(e); });
 
       if (shouldReportStats && hasAnnotation) {
         Stats.addProcessedFunction(CurFunc.getName());
       }
     } else {
-      assert(true && "Operation mode was not specified!");
+      llvm_unreachable("Operation mode was not specified!");
     }
   }
 

@@ -31,13 +31,13 @@
 // using assert
 
 namespace icsa {
+namespace AnnotateInstructions {
 
-bool AnnotateInstructions::has(const llvm::Instruction &CurInstruction) const {
+bool Reader::has(const llvm::Instruction &CurInstruction) const {
   return nullptr != CurInstruction.getMetadata(key());
 }
 
-AnnotateInstructions::InstructionIDTy
-AnnotateInstructions::get(const llvm::Instruction &CurInstruction) const {
+InstructionIDTy Reader::get(const llvm::Instruction &CurInstruction) const {
   const auto *IDNode = CurInstruction.getMetadata(key());
 
   assert(nullptr != IDNode &&
@@ -50,8 +50,9 @@ AnnotateInstructions::get(const llvm::Instruction &CurInstruction) const {
   return IDConstant.getLimitedValue();
 }
 
-AnnotateInstructions::InstructionIDTy
-AnnotateInstructions::annotate(llvm::Instruction &CurInstruction) {
+//
+
+InstructionIDTy Writer::put(llvm::Instruction &CurInstruction) {
   auto &curContext = CurInstruction.getParent()->getParent()->getContext();
   llvm::MDBuilder builder{curContext};
 
@@ -67,4 +68,5 @@ AnnotateInstructions::annotate(llvm::Instruction &CurInstruction) {
   return curID;
 }
 
+} // namespace AnnotateInstructions
 } // namespace icsa

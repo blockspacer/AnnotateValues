@@ -23,34 +23,56 @@ class MDTuple;
 } // namespace llvm end
 
 namespace icsa {
+namespace AnnotateInstructions {
 
-struct AnnotateInstructions {
-  using InstructionIDTy = std::uint32_t;
+using InstructionIDTy = std::uint32_t;
+using IDKeyTy = std::string;
 
-  AnnotateInstructions(
-      InstructionIDTy StartID = 1, InstructionIDTy IDInterval = 1,
-      llvm::StringRef IDKey = "icsa.dynapar.instruction.id") noexcept
-      : CurrentID(StartID),
-        IDInterval(IDInterval),
-        IDKey(IDKey.str()) {}
+const std::string DefaultKey{"icsa.dynapar.instruction.id"};
 
-  AnnotateInstructions(const AnnotateInstructions &) = delete;
-  AnnotateInstructions(AnnotateInstructions &&) = delete;
+//
 
-  InstructionIDTy annotate(llvm::Instruction &CurInstruction) noexcept;
+struct ReaderWriterBase {
+  ReaderWriterBase(llvm::StringRef IDKey) noexcept : IDKey(IDKey.str()) {}
+  llvm::StringRef key() const noexcept { return IDKey; }
+
+protected:
+  IDKeyTy IDKey;
+};
+
+//
+
+struct Reader : ReaderWriterBase {
+  Reader(llvm::StringRef IDKey = DefaultKey) noexcept
+      : ReaderWriterBase(IDKey) {}
+
   bool has(const llvm::Instruction &CurInstruction) const noexcept;
   InstructionIDTy get(const llvm::Instruction &CurInstruction) const noexcept;
+};
+
+//
+
+struct Writer : ReaderWriterBase {
+  Writer(InstructionIDTy StartID = 1, InstructionIDTy IDInterval = 1,
+         llvm::StringRef IDKey = DefaultKey) noexcept : ReaderWriterBase(IDKey),
+                                                        CurrentID(StartID),
+                                                        IDInterval(IDInterval) {
+  }
+
+  Writer(const Writer &) = delete;
+  Writer(Writer &&) = default;
+
+  InstructionIDTy put(llvm::Instruction &CurInstruction) noexcept;
   InstructionIDTy current() const noexcept { return CurrentID; }
-  llvm::StringRef key() const noexcept { return IDKey; }
 
 private:
   void next() noexcept { CurrentID += IDInterval; }
 
   InstructionIDTy CurrentID;
   const InstructionIDTy IDInterval;
-  const std::string IDKey;
 };
 
+} // namespace AnnotateInstructions
 } // namespace icsa
 
 #endif // header
