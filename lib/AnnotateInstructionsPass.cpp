@@ -22,17 +22,8 @@
 // using llvm::PassManagerBuilder
 // using llvm::RegisterStandardPasses
 
-#include "llvm/ADT/StringRef.h"
-// using llvm::StringRef
-
-#include "llvm/ADT/SmallVector.h"
-// using llvm::SmallVector
-
-#include "llvm/Support/raw_ostream.h"
-// using llvm::raw_ostream
-
-#include "llvm/Support/FileSystem.h"
-// using llvm::sys::fs::OpenFlags
+#include "llvm/IR/InstIterator.h"
+// using llvm::instructions
 
 #include "llvm/Support/CommandLine.h"
 // using llvm::cl::opt
@@ -40,37 +31,18 @@
 // using llvm::cl::cat
 // using llvm::cl::OptionCategory
 
-#include "llvm/IR/DebugInfoMetadata.h"
-// using llvm::DIScope
-
 #include <algorithm>
 // using std::for_each
+// using std::any_of
 
 #include <string>
 // using std::string
 
-#include <utility>
-// using std::pair
-
-#include <tuple>
-// using std::tuple
-// using std::make_tuple
-// using std::get
-
-#include <map>
-// using std::map
-
 #include <fstream>
 // using std::ifstream
 
-#include <system_error>
-// using std::error_code
-
-#include <cstring>
-// using std::strncmp
-
-#include <cstdint>
-// using std::uint64_t
+#include <cassert>
+// using assert
 
 #define DEBUG_TYPE "annotate-instructions"
 
@@ -173,37 +145,11 @@ static llvm::cl::opt<LogLevel, true> DebugLevel(
 
 namespace icsa {
 
-namespace {
-
-using FunctionNameTy = std::string;
-using InstructionIDRange = std::pair<AnnotateInstructions::InstructionIDTy,
-                                     AnnotateInstructions::InstructionIDTy>;
-std::uint64_t NumFunctionsProcessed = 0;
-std::map<FunctionNameTy, InstructionIDRange> FunctionsAltered;
-
-void ReportStats(llvm::StringRef Filename) {
-  std::error_code err;
-  llvm::raw_fd_ostream report(Filename, err, llvm::sys::fs::F_Text);
-
-  if (err) {
-    llvm::errs() << "could not open file: \"" << Filename
-                 << "\" reason: " << err.message() << "\n";
-  } else {
-    report << NumFunctionsProcessed << "\n";
-
-    for (const auto &e : FunctionsAltered) {
-      report << e.first << " " << e.second.first << " " << e.second.second
-             << "\n";
-    }
-  }
-}
-
-} // namespace anonymous
-
 bool AnnotateInstructionsPass::runOnModule(llvm::Module &CurModule) {
   bool shouldReportStats = !ReportStatsFilename.empty();
   bool useFuncWhitelist = !FuncWhiteListFilename.empty();
   bool hasChanged = false;
+  AnnotateInstructionsStats Stats;
 
   BWList funcWhiteList;
   if (useFuncWhitelist) {
@@ -218,7 +164,6 @@ bool AnnotateInstructionsPass::runOnModule(llvm::Module &CurModule) {
     }
   }
 
-  llvm::SmallVector<llvm::Instruction *, 16> workList;
   AnnotateInstructions annotator{StartId, IdInterval};
 
   for (auto &CurFunc : CurModule) {
@@ -228,38 +173,33 @@ bool AnnotateInstructionsPass::runOnModule(llvm::Module &CurModule) {
       continue;
     }
 
-    NumFunctionsProcessed++;
-    workList.clear();
+    auto instRange = llvm::instructions(CurFunc);
 
-    auto rangeStart = annotator.current();
+    if (AIOpts::Write == OperationMode) {
+      std::for_each(instructions.begin(), instructions.end(),
+                    [&](const auto *e) {
+                      hasChanged |= true;
+                      annotator.annotate(*e);
+                    });
 
-    if (AIOpts::Write == OperationMode && workList.size()) {
-      for (auto *e : workList) {
-        auto id = annotator.annotate(*e);
+      if (shouldReportStats && instructions.begin() != instructions.end()) {
+        Stats.addProcessedFunction(CurFunc.getName());
       }
-    }
+    } else if (AIOpts::Read == OperationMode && shouldReportStats) {
+      bool hasAnnotation =
+          std::any_of(instructions.begin(), instructions.end(),
+                      [&](const auto *e) { return annotator.has(*e); });
 
-    if (AIOpts::Read == OperationMode && shouldReportStats) {
-      auto pred = [&](const auto *e) {
-        if (annotator.has(*e))
-          ;
-      };
-
-      std::for_each(workList.begin(), workList.end(), pred);
-    }
-
-    auto rangeEnd = annotator.current();
-
-    if (shouldReportStats && AIOpts::Write == OperationMode &&
-        workList.size()) {
-      FunctionsAltered.emplace(CurFunc.getName(),
-                               std::make_pair(rangeStart, rangeEnd));
-      hasChanged = true;
+      if (shouldReportStats && hasAnnotation) {
+        Stats.addProcessedFunction(CurFunc.getName());
+      }
+    } else {
+      assert(true && "Operation mode was not specified!");
     }
   }
 
-  if (shouldReportStats) {
-    ReportStats(ReportStatsFilename);
+  if (shouldReportStats && Stats) {
+    Stats.save(ReportStatsFilename);
   }
 
   return hasChanged;
