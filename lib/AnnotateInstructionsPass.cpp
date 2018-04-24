@@ -162,6 +162,10 @@ template <typename T> decltype(auto) make_inst_range(T &&Unit) {
                           llvm::inst_end(std::forward<T>(Unit)));
 }
 
+template <typename T> bool is_range_empty(const T &Range) {
+  return Range.begin() == Range.end();
+}
+
 } // namespace
 
 bool AnnotateInstructionsPass::runOnModule(llvm::Module &CurModule) {
@@ -200,7 +204,7 @@ bool AnnotateInstructionsPass::runOnModule(llvm::Module &CurModule) {
         writer.put(e);
       }
 
-      if (shouldReportStats && instructions.begin() != instructions.end()) {
+      if (shouldReportStats && !is_range_empty(instructions)) {
         Stats.addProcessedFunction(CurFunc.getName());
       }
     } else if (AIOpts::Read == OperationMode && shouldReportStats) {
