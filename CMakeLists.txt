@@ -125,7 +125,9 @@ endif()
 
 # dependencies
 
-find_package(Boost REQUIRED)
+if(NOT EXISTS ${JSON_ROOT})
+  message(FATAL_ERROR "json root directory ${JSON_ROOT} does not exist")
+endif()
 
 
 #
@@ -157,9 +159,10 @@ if(ANNOTATELOOPS_DEBUG)
 endif()
 
 target_include_directories(${OBJ_LIB_NAME} PUBLIC ${LLVM_INCLUDE_DIRS})
-target_include_directories(${OBJ_LIB_NAME} PRIVATE ${Boost_INCLUDE_DIRS})
 target_include_directories(${OBJ_LIB_NAME} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+target_include_directories(${OBJ_LIB_NAME} PRIVATE
+  $<BUILD_INTERFACE:${JSON_ROOT}>)
 target_include_directories(${OBJ_LIB_NAME} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>)
 target_include_directories(${OBJ_LIB_NAME} PUBLIC

@@ -4,11 +4,13 @@
 
 #include "Stats.hpp"
 
-//#include "boost/property_tree/ptree.hpp"
-//// using boost::property_tree::ptree
+#include <cstdlib>
+// using std::abort
 
-//#include "boost/property_tree/json_parser.hpp"
-//// using boost::property_tree::write_json
+#include "nlohmann/json.hpp"
+// using nlohmann::json
+
+using json = nlohmann::json;
 
 namespace icsa {
 
