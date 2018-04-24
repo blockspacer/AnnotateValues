@@ -18,7 +18,7 @@ export BUILD_TYPE=Debug
 
 export GTEST_ROOT=/usr/local/gtest-libcxx
 
-export JSON_ROOT=/bulk/workbench/repos/json/single_include/
+export JSON_ROOT=/bulk/workbench/repos/various/rapidjson/include/
 
 export CXX_FLAGS=
 export CXX_FLAGS="-stdlib=libc++"
