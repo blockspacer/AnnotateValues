@@ -25,7 +25,8 @@
 // using llvm::RegisterStandardPasses
 
 #include "llvm/IR/InstIterator.h"
-// using llvm::instructions
+// using llvm::inst_begin
+// using llvm::inst_end
 
 #include "llvm/Support/CommandLine.h"
 // using llvm::cl::opt
@@ -173,22 +174,21 @@ bool AnnotateInstructionsPass::runOnModule(llvm::Module &CurModule) {
       continue;
     }
 
-    auto instRange = llvm::instructions(CurFunc);
-
     if (AIOpts::Write == OperationMode) {
-      std::for_each(instructions.begin(), instructions.end(),
-                    [&](const auto *e) {
+      std::for_each(llvm::inst_begin(CurFunc), llvm::inst_end(CurFunc),
+                    [&](auto &e) {
                       hasChanged |= true;
-                      annotator.annotate(*e);
+                      annotator.annotate(e);
                     });
 
-      if (shouldReportStats && instructions.begin() != instructions.end()) {
+      if (shouldReportStats &&
+          llvm::inst_begin(CurFunc) != llvm::inst_end(CurFunc)) {
         Stats.addProcessedFunction(CurFunc.getName());
       }
     } else if (AIOpts::Read == OperationMode && shouldReportStats) {
       bool hasAnnotation =
-          std::any_of(instructions.begin(), instructions.end(),
-                      [&](const auto *e) { return annotator.has(*e); });
+          std::any_of(llvm::inst_begin(CurFunc), llvm::inst_end(CurFunc),
+                      [&](auto &e) { return annotator.has(e); });
 
       if (shouldReportStats && hasAnnotation) {
         Stats.addProcessedFunction(CurFunc.getName());
