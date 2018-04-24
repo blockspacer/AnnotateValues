@@ -28,6 +28,9 @@
 // using llvm::inst_begin
 // using llvm::inst_end
 
+#include "llvm/ADT/iterator_range.h"
+// using llvm::make_range
+
 #include "llvm/Support/CommandLine.h"
 // using llvm::cl::opt
 // using llvm::cl::desc
@@ -43,6 +46,9 @@
 
 #include <fstream>
 // using std::ifstream
+
+#include <utility>
+// using std::forward
 
 #include <cassert>
 // using assert
@@ -146,6 +152,15 @@ static llvm::cl::opt<LogLevel, true> DebugLevel(
 
 namespace icsa {
 
+namespace {
+
+template <typename T> decltype(auto) make_inst_range(T &&Unit) {
+  return llvm::make_range(llvm::inst_begin(std::forward<T>(Unit)),
+                          llvm::inst_end(std::forward<T>(Unit)));
+}
+
+} // namespace unnamed
+
 bool AnnotateInstructionsPass::runOnModule(llvm::Module &CurModule) {
   bool shouldReportStats = !ReportStatsFilename.empty();
   bool useFuncWhitelist = !FuncWhiteListFilename.empty();
@@ -175,11 +190,10 @@ bool AnnotateInstructionsPass::runOnModule(llvm::Module &CurModule) {
     }
 
     if (AIOpts::Write == OperationMode) {
-      std::for_each(llvm::inst_begin(CurFunc), llvm::inst_end(CurFunc),
-                    [&](auto &e) {
-                      hasChanged |= true;
-                      annotator.annotate(e);
-                    });
+      for (auto &e : make_inst_range(CurFunc)) {
+        hasChanged |= true;
+        annotator.annotate(e);
+      }
 
       if (shouldReportStats &&
           llvm::inst_begin(CurFunc) != llvm::inst_end(CurFunc)) {
