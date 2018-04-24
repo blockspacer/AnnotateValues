@@ -6,6 +6,8 @@
 
 #include "AnnotateInstructions.hpp"
 
+#include "Stats.hpp"
+
 #include "BWList.hpp"
 
 #include "Utils.hpp"
