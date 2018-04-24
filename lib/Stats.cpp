@@ -10,8 +10,8 @@
 #include "rapidjson/ostreamwrapper.h"
 // using rapidjson::OStreamWrapper
 
-#include "rapidjson/writer.h"
-// using rapidjson::Writer
+#include "rapidjson/prettywriter.h"
+// using rapidjson::PrettyWriter
 
 #include <fstream>
 // using std::ofstream
@@ -38,7 +38,7 @@ bool AnnotateInstructionsStats::save(const std::string &Filename) const {
 
   std::ofstream ofs(Filename);
   json::OStreamWrapper osw(ofs);
-  json::Writer<decltype(osw)> writer(osw);
+  json::PrettyWriter<decltype(osw)> writer(osw);
 
   d.Accept(writer);
 
