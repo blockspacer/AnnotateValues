@@ -189,19 +189,20 @@ bool AnnotateInstructionsPass::runOnModule(llvm::Module &CurModule) {
       continue;
     }
 
+    auto instructions = make_inst_range(CurFunc);
+
     if (AIOpts::Write == OperationMode) {
-      for (auto &e : make_inst_range(CurFunc)) {
+      for (auto &e : instructions) {
         hasChanged |= true;
         annotator.annotate(e);
       }
 
-      if (shouldReportStats &&
-          llvm::inst_begin(CurFunc) != llvm::inst_end(CurFunc)) {
+      if (shouldReportStats && instructions.begin() != instructions.end()) {
         Stats.addProcessedFunction(CurFunc.getName());
       }
     } else if (AIOpts::Read == OperationMode && shouldReportStats) {
       bool hasAnnotation =
-          std::any_of(llvm::inst_begin(CurFunc), llvm::inst_end(CurFunc),
+          std::any_of(instructions.begin(), instructions.end(),
                       [&](auto &e) { return annotator.has(e); });
 
       if (shouldReportStats && hasAnnotation) {
