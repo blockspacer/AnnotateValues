@@ -29,8 +29,8 @@ enum class LogLevel { info, notice, warning, error, debug };
 
 namespace icsa {
 
-extern bool passDebugFlag;
-extern LogLevel passLogLevel;
+static bool passDebugFlag;
+static LogLevel passLogLevel;
 
 } // namespace icsa end
 
