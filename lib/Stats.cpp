@@ -39,6 +39,7 @@ bool AnnotateInstructionsStats::save(const std::string &Filename) const {
   std::ofstream ofs(Filename);
   json::OStreamWrapper osw(ofs);
   json::PrettyWriter<decltype(osw)> writer(osw);
+  writer.SetIndent(' ', 2);
 
   d.Accept(writer);
 
