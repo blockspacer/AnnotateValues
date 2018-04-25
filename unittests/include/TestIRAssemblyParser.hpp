@@ -46,7 +46,6 @@ public:
         m_TestDataDir{dataDir} {
 #if (LLVM_VERSION_MAJOR >= 4) ||                                               \
     (LLVM_VERSION_MAJOR == 3 && LLVM_VERSION_MINOR >= 9)
-    llvm::LLVMContext theContext;
     m_Context = &theContext;
 #else
     m_Context = &(llvm::getGlobalContext());
@@ -54,8 +53,8 @@ public:
   }
 
   void parseAssemblyFile(llvm::StringRef AssemblyHolder) {
-    m_Module = llvm::parseAssemblyFile((m_TestDataDir + AssemblyHolder).str(),
-                                       m_Diagnostic, *m_Context);
+    auto filename = (m_TestDataDir + AssemblyHolder).str();
+    m_Module = llvm::parseAssemblyFile(filename, m_Diagnostic, *m_Context);
 
     report();
   }
@@ -79,6 +78,11 @@ protected:
     if (!m_Module)
       llvm::report_fatal_error(os.str().c_str());
   }
+
+#if (LLVM_VERSION_MAJOR >= 4) ||                                               \
+    (LLVM_VERSION_MAJOR == 3 && LLVM_VERSION_MINOR >= 9)
+  llvm::LLVMContext theContext;
+#endif
 
   bool m_shouldVerify;
   std::unique_ptr<llvm::Module> m_Module;
