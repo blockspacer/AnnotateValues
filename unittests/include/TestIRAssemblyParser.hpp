@@ -36,14 +36,17 @@
 // using llvm::StringRef
 
 namespace icsa {
+namespace testing {
 
 class TestIRAssemblyParser {
 public:
-  TestIRAssemblyParser(llvm::StringRef dataDir = "./unittests/data/")
-      : m_Module{nullptr}, m_TestDataDir{dataDir} {
+  TestIRAssemblyParser(bool shouldVerify = true,
+                       llvm::StringRef dataDir = "./unittests/data/")
+      : m_Module{nullptr}, m_shouldVerify(shouldVerify),
+        m_TestDataDir{dataDir} {
 #if (LLVM_VERSION_MAJOR >= 4) ||                                               \
     (LLVM_VERSION_MAJOR == 3 && LLVM_VERSION_MINOR >= 9)
-    llvm::Context theContext;
+    llvm::LLVMContext theContext;
     m_Context = &theContext;
 #else
     m_Context = &(llvm::getGlobalContext());
@@ -70,19 +73,21 @@ protected:
     llvm::raw_string_ostream os(msg);
     m_Diagnostic.print("", os);
 
-    if (llvm::verifyModule(*m_Module, &(llvm::errs())))
+    if (m_shouldVerify && llvm::verifyModule(*m_Module, &(llvm::errs())))
       llvm::report_fatal_error("module verification failed\n");
 
     if (!m_Module)
       llvm::report_fatal_error(os.str().c_str());
   }
 
+  bool m_shouldVerify;
   std::unique_ptr<llvm::Module> m_Module;
   llvm::StringRef m_TestDataDir;
   llvm::LLVMContext *m_Context;
   llvm::SMDiagnostic m_Diagnostic;
 };
 
-} // namespace icsa end
+} // namespace testing
+} // namespace icsa
 
 #endif // header

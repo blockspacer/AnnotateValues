@@ -25,6 +25,7 @@
 #include "AnnotateLoops.hpp"
 
 namespace icsa {
+namespace testing {
 
 static llvm::LoopInfo calculateLoopInfo(llvm::Function &Func) {
   llvm::DominatorTree DT;
@@ -52,6 +53,7 @@ std::ostream &operator<<(std::ostream &os, const AnnotateLoopsTestData &td) {
             << "next id: " << td.nextId << delim;
 }
 
-} // namespace icsa end
+} // namespace testing
+} // namespace icsa
 
 #endif // header

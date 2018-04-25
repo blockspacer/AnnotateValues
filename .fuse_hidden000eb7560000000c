@@ -1,0 +1,37 @@
+[
+{
+  "directory": "/bulk/workbench/builds/AnnotateLoops",
+  "command": "/bulk/workbench/llvm/3.7.0/toolchain8/bin/clang++  -DVERSION_STRING=2.0.1 -D_DEBUG -D__STDC_CONSTANT_MACROS -D__STDC_CONSTANT_MACROS -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/bulk/workbench/llvm/3.7.0/toolchain8/include -I/bulk/workbench/repos/AnnotateLoops/include -I/bulk/workbench/repos/various/rapidjson/include -Iinclude  -stdlib=libc++ -fPIC -fvisibility-inlines-hidden -Werror=date-time -std=c++11 -fcolor-diagnostics -fno-rtti -fno-exceptions -g   -std=c++14 -o CMakeFiles/LLVMAnnotateLoopsPass_obj.dir/lib/Stats.cpp.o -c /bulk/workbench/repos/AnnotateLoops/lib/Stats.cpp",
+  "file": "/bulk/workbench/repos/AnnotateLoops/lib/Stats.cpp"
+},
+
+{
+  "directory": "/bulk/workbench/builds/AnnotateLoops",
+  "command": "/bulk/workbench/llvm/3.7.0/toolchain8/bin/clang++  -DVERSION_STRING=2.0.1 -D_DEBUG -D__STDC_CONSTANT_MACROS -D__STDC_CONSTANT_MACROS -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/bulk/workbench/llvm/3.7.0/toolchain8/include -I/bulk/workbench/repos/AnnotateLoops/include -I/bulk/workbench/repos/various/rapidjson/include -Iinclude  -stdlib=libc++ -fPIC -fvisibility-inlines-hidden -Werror=date-time -std=c++11 -fcolor-diagnostics -fno-rtti -fno-exceptions -g   -std=c++14 -o CMakeFiles/LLVMAnnotateLoopsPass_obj.dir/lib/AnnotateLoops.cpp.o -c /bulk/workbench/repos/AnnotateLoops/lib/AnnotateLoops.cpp",
+  "file": "/bulk/workbench/repos/AnnotateLoops/lib/AnnotateLoops.cpp"
+},
+
+{
+  "directory": "/bulk/workbench/builds/AnnotateLoops",
+  "command": "/bulk/workbench/llvm/3.7.0/toolchain8/bin/clang++  -DVERSION_STRING=2.0.1 -D_DEBUG -D__STDC_CONSTANT_MACROS -D__STDC_CONSTANT_MACROS -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/bulk/workbench/llvm/3.7.0/toolchain8/include -I/bulk/workbench/repos/AnnotateLoops/include -I/bulk/workbench/repos/various/rapidjson/include -Iinclude  -stdlib=libc++ -fPIC -fvisibility-inlines-hidden -Werror=date-time -std=c++11 -fcolor-diagnostics -fno-rtti -fno-exceptions -g   -std=c++14 -o CMakeFiles/LLVMAnnotateLoopsPass_obj.dir/lib/AnnotateInstructions.cpp.o -c /bulk/workbench/repos/AnnotateLoops/lib/AnnotateInstructions.cpp",
+  "file": "/bulk/workbench/repos/AnnotateLoops/lib/AnnotateInstructions.cpp"
+},
+
+{
+  "directory": "/bulk/workbench/builds/AnnotateLoops",
+  "command": "/bulk/workbench/llvm/3.7.0/toolchain8/bin/clang++  -DVERSION_STRING=2.0.1 -D_DEBUG -D__STDC_CONSTANT_MACROS -D__STDC_CONSTANT_MACROS -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/bulk/workbench/llvm/3.7.0/toolchain8/include -I/bulk/workbench/repos/AnnotateLoops/include -I/bulk/workbench/repos/various/rapidjson/include -Iinclude  -stdlib=libc++ -fPIC -fvisibility-inlines-hidden -Werror=date-time -std=c++11 -fcolor-diagnostics -fno-rtti -fno-exceptions -g   -std=c++14 -o CMakeFiles/LLVMAnnotateLoopsPass_obj.dir/lib/AnnotateLoopsPass.cpp.o -c /bulk/workbench/repos/AnnotateLoops/lib/AnnotateLoopsPass.cpp",
+  "file": "/bulk/workbench/repos/AnnotateLoops/lib/AnnotateLoopsPass.cpp"
+},
+
+{
+  "directory": "/bulk/workbench/builds/AnnotateLoops",
+  "command": "/bulk/workbench/llvm/3.7.0/toolchain8/bin/clang++  -DVERSION_STRING=2.0.1 -D_DEBUG -D__STDC_CONSTANT_MACROS -D__STDC_CONSTANT_MACROS -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/bulk/workbench/llvm/3.7.0/toolchain8/include -I/bulk/workbench/repos/AnnotateLoops/include -I/bulk/workbench/repos/various/rapidjson/include -Iinclude  -stdlib=libc++ -fPIC -fvisibility-inlines-hidden -Werror=date-time -std=c++11 -fcolor-diagnostics -fno-rtti -fno-exceptions -g   -std=c++14 -o CMakeFiles/LLVMAnnotateLoopsPass_obj.dir/lib/AnnotateInstructionsPass.cpp.o -c /bulk/workbench/repos/AnnotateLoops/lib/AnnotateInstructionsPass.cpp",
+  "file": "/bulk/workbench/repos/AnnotateLoops/lib/AnnotateInstructionsPass.cpp"
+},
+
+{
+  "directory": "/bulk/workbench/builds/AnnotateLoops",
+  "command": "/bulk/workbench/llvm/3.7.0/toolchain8/bin/clang++  -D_DEBUG -D__STDC_CONSTANT_MACROS -D__STDC_CONSTANT_MACROS -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/bulk/workbench/repos/AnnotateLoops/unittests/include -I/usr/local/gtest-libcxx/include -I/bulk/workbench/llvm/3.7.0/toolchain8/include -Iunittests/../include -I/bulk/workbench/repos/AnnotateLoops/unittests/../include  -stdlib=libc++ -fPIC -fvisibility-inlines-hidden -Werror=date-time -std=c++11 -fcolor-diagnostics -fno-rtti -fno-exceptions -g   -o unittests/CMakeFiles/TestAnnotateLoops.dir/BasicTests.cpp.o -c /bulk/workbench/repos/AnnotateLoops/unittests/BasicTests.cpp",
+  "file": "/bulk/workbench/repos/AnnotateLoops/unittests/BasicTests.cpp"
+}
+]

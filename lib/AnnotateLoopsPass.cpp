@@ -167,12 +167,12 @@ static llvm::cl::opt<std::string>
 #if ANNOTATELOOPS_DEBUG
 static llvm::cl::opt<bool, true>
     Debug("al-debug", llvm::cl::desc("debug annotate loops pass"),
-          llvm::cl::location(icsa::passDebugFlag),
+          llvm::cl::location(icsa::utility::passDebugFlag),
           llvm::cl::cat(AnnotateLoopsCategory));
 
 static llvm::cl::opt<LogLevel, true> DebugLevel(
     "al-debug-level", llvm::cl::desc("debug level for annotate loops pass"),
-    llvm::cl::location(icsa::passLogLevel),
+    llvm::cl::location(icsa::utility::passLogLevel),
     llvm::cl::values(
         clEnumValN(LogLevel::info, "info", "informational messages"),
         clEnumValN(LogLevel::notice, "notice", "significant conditions"),

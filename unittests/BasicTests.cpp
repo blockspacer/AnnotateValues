@@ -15,11 +15,11 @@
 #include "AnnotateLoops.hpp"
 
 namespace icsa {
-namespace {
+namespace testing {
 
-class NoAnnotationTest : public TestIRAssemblyParser,
-                         public testing::TestWithParam<AnnotateLoopsTestData> {
-};
+class NoAnnotationTest
+    : public TestIRAssemblyParser,
+      public ::testing::TestWithParam<AnnotateLoopsTestData> {};
 
 //
 
@@ -41,13 +41,13 @@ std::array<AnnotateLoopsTestData, 3> testData1 = {"regular_loop.ll",        2u,
                                                   "exit_call_loop.ll",      2u};
 
 INSTANTIATE_TEST_CASE_P(DefaultInstance, NoAnnotationTest,
-                        testing::ValuesIn(testData1));
+                        ::testing::ValuesIn(testData1));
 
 //
 
 class PostAnnotationTest
     : public TestIRAssemblyParser,
-      public testing::TestWithParam<AnnotateLoopsTestData> {};
+      public ::testing::TestWithParam<AnnotateLoopsTestData> {};
 
 TEST_P(PostAnnotationTest, PostAnnotation) {
   auto td = GetParam();
@@ -72,13 +72,13 @@ std::array<AnnotateLoopsTestData, 3> testData2 = {"regular_loop.ll",        5u,
                                                   "exit_call_loop.ll",      5u};
 
 INSTANTIATE_TEST_CASE_P(DefaultInstance, PostAnnotationTest,
-                        testing::ValuesIn(testData2));
+                        ::testing::ValuesIn(testData2));
 
 //
 
 class PostAnnotationNestedTest
     : public TestIRAssemblyParser,
-      public testing::TestWithParam<AnnotateLoopsTestData> {};
+      public ::testing::TestWithParam<AnnotateLoopsTestData> {};
 
 TEST_P(PostAnnotationNestedTest, PostAnnotationNested) {
   auto td = GetParam();
@@ -108,7 +108,7 @@ std::array<AnnotateLoopsTestData, 3> testData3 = {"regular_loop.ll",        5u,
                                                   "exit_call_loop.ll",      5u};
 
 INSTANTIATE_TEST_CASE_P(DefaultInstance, PostAnnotationNestedTest,
-                        testing::ValuesIn(testData3));
+                        ::testing::ValuesIn(testData3));
 
-} // namespace anonymous end
-} // namespace icsa end
+} // namespace testing
+} // namespace icsa

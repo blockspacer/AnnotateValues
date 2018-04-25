@@ -134,13 +134,13 @@ static llvm::cl::opt<std::string>
 #if ANNOTATELOOPS_DEBUG
 static llvm::cl::opt<bool, true>
     Debug("ai-debug", llvm::cl::desc("debug annotate instructions pass"),
-          llvm::cl::location(icsa::passDebugFlag),
+          llvm::cl::location(icsa::utility::passDebugFlag),
           llvm::cl::cat(AnnotateInstructionsCategory));
 
 static llvm::cl::opt<LogLevel, true> DebugLevel(
     "ai-debug-level",
     llvm::cl::desc("debug level for annotate instructions pass"),
-    llvm::cl::location(icsa::passLogLevel),
+    llvm::cl::location(icsa::utility::passLogLevel),
     llvm::cl::values(
         clEnumValN(LogLevel::info, "info", "informational messages"),
         clEnumValN(LogLevel::notice, "notice", "significant conditions"),

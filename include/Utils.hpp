@@ -27,26 +27,35 @@ enum class LogLevel { info, notice, warning, error, debug };
 #include <system_error>
 // using std::error_code
 
+// preprocessor stringification macros
+#define STRINGIFY_UTIL(x) #x
+#define STRINGIFY(x) STRINGIFY_UTIL(x)
+
+#define PRJ_CMDLINE_DESC(x) x " (version: " STRINGIFY(VERSION_STRING) ")"
+
 namespace icsa {
+namespace utility {
 
 static bool passDebugFlag;
 static LogLevel passLogLevel;
 
-} // namespace icsa end
+} // namespace utility
+} // namespace icsa
 
 #define DEBUG_MSG(L, STR)                                                      \
   do {                                                                         \
-    if (icsa::passDebugFlag && L <= icsa::passLogLevel)                        \
+    if (icsa::utility::passDebugFlag && L <= icsa::utility::passLogLevel)                        \
       llvm::errs() << STR;                                                     \
   } while (false)
 
 #define DEBUG_CMD(L, C)                                                        \
   do {                                                                         \
-    if (icsa::passDebugFlag && L <= icsa::passLogLevel)                        \
+    if (icsa::utility::passDebugFlag && L <= icsa::utility::passLogLevel)                        \
       C;                                                                       \
   } while (false)
 
 namespace icsa {
+namespace utility {
 
 static bool dumpFunction(const llvm::Function *CurFunc = nullptr) {
   if (!CurFunc)
@@ -64,7 +73,8 @@ static bool dumpFunction(const llvm::Function *CurFunc = nullptr) {
   return false;
 }
 
-} // namespace icsa end
+} // namespace utility
+} // namespace icsa
 
 #else
 
@@ -81,13 +91,15 @@ class Function;
 } // namespace llvm end
 
 namespace icsa {
+namespace utility {
 
 static constexpr bool dumpFunction(const llvm::Function *CurFunc = nullptr) {
   return true;
 }
 
-} // namespace icsa end
+} // namespace utility
+} // namespace icsa
 
 #endif // ANNOTATELOOPS_DEBUG
 
-#endif // UTILS_HPP
+#endif // header
