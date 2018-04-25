@@ -4,6 +4,8 @@
 
 #include "Stats.hpp"
 
+#include "Debug.hpp"
+
 #if ANNOTATELOOPS_HAS_JSON == !0
 
 #include "rapidjson/document.h"

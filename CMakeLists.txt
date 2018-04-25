@@ -126,6 +126,7 @@ endif()
 #
 
 set(LIB_SOURCES
+  "lib/Debug.cpp"
   "lib/Stats.cpp"
   "lib/AnnotateLoops.cpp"
   "lib/AnnotateInstructions.cpp"

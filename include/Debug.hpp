@@ -2,12 +2,13 @@
 //
 //
 
-#ifndef UTILS_HPP
-#define UTILS_HPP
+#ifndef ANNOTATEVALUES_DEBUG_HPP
+#define ANNOTATEVALUES_DEBUG_HPP
 
 #include "Config.hpp"
 
-enum class LogLevel { Info, Notice, Warning, Error, Debug };
+#define DEFINE_DEBUG_LEVELS                                                    \
+  enum class LogLevel { Info, Notice, Warning, Error, Debug }
 
 #if ANNOTATELOOPS_DEBUG
 
@@ -33,11 +34,13 @@ enum class LogLevel { Info, Notice, Warning, Error, Debug };
 
 #define PRJ_CMDLINE_DESC(x) x " (version: " STRINGIFY(VERSION_STRING) ")"
 
+DEFINE_DEBUG_LEVELS;
+
 namespace icsa {
 namespace utility {
 
-static bool passDebugFlag;
-static LogLevel passLogLevel;
+extern bool passDebugFlag;
+extern LogLevel passLogLevel;
 
 } // namespace utility
 } // namespace icsa
@@ -89,6 +92,8 @@ static bool dumpFunction(const llvm::Function *CurFunc = nullptr) {
 namespace llvm {
 class Function;
 } // namespace llvm end
+
+DEFINE_DEBUG_LEVELS;
 
 namespace icsa {
 namespace utility {
