@@ -21,7 +21,9 @@ add_clean_all_target()
 option(ANNOTATELOOPS_SKIP_TESTS "Skip configuring the project tests" ON)
 
 set(PRJ_DEBUG_VALUE 0)
-if(CMAKE_BUILD_TYPE MATCHES DEBUG)
+string(TOUPPER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE)
+
+if(${CMAKE_BUILD_TYPE} MATCHES "DEBUG")
   set(ANNOTATELOOPS_DEBUG ON)
   set(PRJ_DEBUG_VALUE 1)
 endif()
