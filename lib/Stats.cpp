@@ -20,12 +20,12 @@
 #include <fstream>
 // using std::ofstream
 
-namespace json = rapidjson;
-
 namespace icsa {
 
 bool AnnotateInstructionsStats::save(const std::string &Filename) const {
 #if ANNOTATELOOPS_HAS_JSON == !0
+  namespace json = rapidjson;
+
   json::Document d;
   d.SetObject();
 
