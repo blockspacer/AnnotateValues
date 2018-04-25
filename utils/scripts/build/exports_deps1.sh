@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # LLVM/Clang should be in the PATH for this to work
-export CC=clang 
+export CC=clang
 export CXX=clang++
 export LLVMCONFIG=llvm-config
 
@@ -24,10 +24,10 @@ export CXX_FLAGS=
 export CXX_FLAGS="-stdlib=libc++"
 
 export LINKER_FLAGS=
-export LINKER_FLAGS="-Wl,-L$(${LLVMCONFIG} --libdir)" 
-export LINKER_FLAGS="${LINKER_FLAGS} -lc++ -lc++abi" 
+export LINKER_FLAGS="-Wl,-L$(${LLVMCONFIG} --libdir)"
+export LINKER_FLAGS="${LINKER_FLAGS} -lc++ -lc++abi"
 
-export ANNOTATELOOPS_SKIP_TESTS=OFF
+export ANNOTATEVALUES_SKIP_TESTS=OFF
 
 
 # find LLVM's cmake dir
@@ -41,7 +41,7 @@ ${LLVMCONFIG} --cmakedir &> /dev/null
 CMAKE_OPTIONS="-DLLVM_DIR=${LLVM_DIR}"
 CMAKE_OPTIONS="${CMAKE_OPTIONS} -DGTEST_ROOT=${GTEST_ROOT}"
 CMAKE_OPTIONS="${CMAKE_OPTIONS} -DJSON_ROOT=${JSON_ROOT}"
-CMAKE_OPTIONS="${CMAKE_OPTIONS} -DANNOTATELOOPS_SKIP_TESTS=${ANNOTATELOOPS_SKIP_TESTS}"
+CMAKE_OPTIONS="${CMAKE_OPTIONS} -DANNOTATEVALUES_SKIP_TESTS=${ANNOTATEVALUES_SKIP_TESTS}"
 
 export CMAKE_OPTIONS
 

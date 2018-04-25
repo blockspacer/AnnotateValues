@@ -1,6 +1,7 @@
-# AnnotateLoops - A LLVM Annotate Loops opt pass
+# AnnotateValues - A LLVM opt pass for annotating LLVM IR values
 
-This is a `LLVM` [`opt`][1] pass for annotating loops with numerical identification numbers (aka ID).
+This is a `LLVM` [`opt`][1] pass for annotating `LLVM IR` values (loops and instructions) with numerical identification
+(aka ID) numbers using the `LLVM IR` metadata facility.
 
 The uniqueness of the generated numbers is left to the user of the API and pass.
 

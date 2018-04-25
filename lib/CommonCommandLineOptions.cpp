@@ -15,7 +15,7 @@ static llvm::cl::OptionCategory
     AnnotateValuesCategory("AnnotateValues passes",
                            "Common options for AnnotateValues passes");
 
-#if ANNOTATELOOPS_DEBUG
+#if ANNOTATEVALUES_DEBUG
 static llvm::cl::opt<bool, true>
     Debug("av-debug", llvm::cl::desc("debug annotate values passes"),
           llvm::cl::location(icsa::debug::passDebugFlag),
@@ -37,4 +37,4 @@ static llvm::cl::opt<LogLevel, true> DebugLevel(
         // clang-format on
         ),
     llvm::cl::cat(AnnotateValuesCategory));
-#endif // ANNOTATELOOPS_DEBUG
+#endif // ANNOTATEVALUES_DEBUG

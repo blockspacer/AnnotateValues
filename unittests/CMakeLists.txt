@@ -2,7 +2,7 @@
 
 # requirements
 
-if(ANNOTATELOOPS_SKIP_TESTS)
+if(ANNOTATEVALUES_SKIP_TESTS)
   message(STATUS "Testing is disabled; skipping unit tests")
 
   return()

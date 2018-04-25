@@ -136,10 +136,10 @@ void checkCmdLineOptions() {
            "Cannot specify this option combination!");
   }
 
-#if ANNOTATELOOPS_HAS_JSON == 0
+#if ANNOTATEVALUES_HAS_JSON == 0
   assert(!ReportStatsFilename.getPosition() &&
          "Cannot export stats when not configured with a JSON library");
-#endif // ANNOTATELOOPS_HAS_JSON
+#endif // ANNOTATEVALUES_HAS_JSON
 }
 
 } // namespace

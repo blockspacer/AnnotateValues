@@ -18,27 +18,27 @@ include(GetGitVersion)
 
 add_clean_all_target()
 
-option(ANNOTATELOOPS_SKIP_TESTS "Skip configuring the project tests" ON)
+option(ANNOTATEVALUES_SKIP_TESTS "Skip configuring the project tests" ON)
 
 set(PRJ_DEBUG_VALUE 0)
 string(TOUPPER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE)
 
 if(${CMAKE_BUILD_TYPE} MATCHES "DEBUG")
-  set(ANNOTATELOOPS_DEBUG ON)
+  set(ANNOTATEVALUES_DEBUG ON)
   set(PRJ_DEBUG_VALUE 1)
 endif()
 
 get_git_version(SHORT VERSION PRJ_VERSION)
 set(PRJ_VERSION_SHORT ${PRJ_VERSION})
 
-set(PRJ_NAME AnnotateLoops)
+set(PRJ_NAME AnnotateValues)
 string(TOUPPER ${PRJ_NAME} PRJ_NAME_UPPER)
 string(TOLOWER ${PRJ_NAME} PRJ_NAME_LOWER)
 
 project(${PRJ_NAME} C CXX)
 
-set(ANNOTATELOOPS_SKIP_TESTS OFF)
-set(ANNOTATELOOPS_EXPORT ${PRJ_NAME})
+set(ANNOTATEVALUES_SKIP_TESTS OFF)
+set(ANNOTATEVALUES_EXPORT ${PRJ_NAME})
 
 # CMP0056 is required for any libc++abi dependency of the try_compile() command
 # this bumps required version to 3.2 otherwise LD_LIBRARY_DIR needs to be set
@@ -220,7 +220,7 @@ set(PRJ_CMAKE_CONFIG_EXTRA_FILE "config-extra.cmake")
 
 set(DEPENDEE "")
 
-install(TARGETS ${LIB_NAME} EXPORT ${ANNOTATELOOPS_EXPORT}
+install(TARGETS ${LIB_NAME} EXPORT ${ANNOTATEVALUES_EXPORT}
   ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
   LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}")
 
@@ -261,6 +261,6 @@ install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/share/"
 
 #
 
-install(EXPORT ${ANNOTATELOOPS_EXPORT}
+install(EXPORT ${ANNOTATEVALUES_EXPORT}
   DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake")
 

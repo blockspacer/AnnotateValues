@@ -10,7 +10,7 @@
 #define DEFINE_DEBUG_LEVELS                                                    \
   enum class LogLevel { Info, Notice, Warning, Error, Debug }
 
-#if ANNOTATELOOPS_DEBUG
+#if ANNOTATEVALUES_DEBUG
 
 #include "llvm/IR/Function.h"
 // using llvm::Function
@@ -99,6 +99,6 @@ static constexpr bool dumpFunction(const llvm::Function *CurFunc = nullptr) {
 } // namespace debug
 } // namespace icsa
 
-#endif // ANNOTATELOOPS_DEBUG
+#endif // ANNOTATEVALUES_DEBUG
 
 #endif // header
