@@ -145,11 +145,11 @@ static llvm::cl::opt<LogLevel, true> DebugLevel(
     llvm::cl::desc("debug level for annotate instructions pass"),
     llvm::cl::location(icsa::utility::passLogLevel),
     llvm::cl::values(
-        clEnumValN(LogLevel::info, "info", "informational messages"),
-        clEnumValN(LogLevel::notice, "notice", "significant conditions"),
-        clEnumValN(LogLevel::warning, "warning", "warning conditions"),
-        clEnumValN(LogLevel::error, "error", "error conditions"),
-        clEnumValN(LogLevel::debug, "debug", "debug messages")
+        clEnumValN(LogLevel::Info, "Info", "informational messages"),
+        clEnumValN(LogLevel::Notice, "Notice", "significant conditions"),
+        clEnumValN(LogLevel::Warning, "Warning", "warning conditions"),
+        clEnumValN(LogLevel::Error, "Error", "error conditions"),
+        clEnumValN(LogLevel::Debug, "Debug", "debug messages")
 // clang-format off
 #if (LLVM_VERSION_MAJOR <= 3 && LLVM_VERSION_MINOR < 9)
                                 , clEnumValEnd

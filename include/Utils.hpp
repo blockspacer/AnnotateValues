@@ -7,7 +7,7 @@
 
 #include "Config.hpp"
 
-enum class LogLevel { info, notice, warning, error, debug };
+enum class LogLevel { Info, Notice, Warning, Error, Debug };
 
 #if ANNOTATELOOPS_DEBUG
 
@@ -44,13 +44,13 @@ static LogLevel passLogLevel;
 
 #define DEBUG_MSG(L, STR)                                                      \
   do {                                                                         \
-    if (icsa::utility::passDebugFlag && L <= icsa::utility::passLogLevel)                        \
+    if (icsa::utility::passDebugFlag && L <= icsa::utility::passLogLevel)      \
       llvm::errs() << STR;                                                     \
   } while (false)
 
 #define DEBUG_CMD(L, C)                                                        \
   do {                                                                         \
-    if (icsa::utility::passDebugFlag && L <= icsa::utility::passLogLevel)                        \
+    if (icsa::utility::passDebugFlag && L <= icsa::utility::passLogLevel)      \
       C;                                                                       \
   } while (false)
 
