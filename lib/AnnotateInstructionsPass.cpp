@@ -37,6 +37,9 @@
 // using llvm::cl::cat
 // using llvm::cl::OptionCategory
 
+#include "llvm/Support/raw_ostream.h"
+// using llvm::errs
+
 #include "llvm/Support/ErrorHandling.h"
 // using llvm_unreachable
 
