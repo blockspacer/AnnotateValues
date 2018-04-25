@@ -19,12 +19,10 @@ include(GetGitVersion)
 add_clean_all_target()
 
 option(ANNOTATELOOPS_SKIP_TESTS "Skip configuring the project tests" ON)
-option(ANNOTATELOOPS_DEBUG "Enable project custom debug output facilities" OFF)
-
-message(STATUS "project debug: ${ANNOTATELOOPS_DEBUG}")
 
 set(PRJ_DEBUG_VALUE 0)
-if(ANNOTATELOOPS_DEBUG)
+if(CMAKE_BUILD_TYPE MATCHES DEBUG)
+  set(ANNOTATELOOPS_DEBUG ON)
   set(PRJ_DEBUG_VALUE 1)
 endif()
 
@@ -38,7 +36,6 @@ string(TOLOWER ${PRJ_NAME} PRJ_NAME_LOWER)
 project(${PRJ_NAME} C CXX)
 
 set(ANNOTATELOOPS_SKIP_TESTS OFF)
-set(ANNOTATELOOPS_DEBUG ON)
 set(ANNOTATELOOPS_EXPORT ${PRJ_NAME})
 
 # CMP0056 is required for any libc++abi dependency of the try_compile() command
