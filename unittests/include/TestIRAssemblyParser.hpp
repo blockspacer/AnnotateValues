@@ -42,26 +42,26 @@ class TestIRAssemblyParser {
 public:
   TestIRAssemblyParser(bool shouldVerify = true,
                        llvm::StringRef dataDir = "./unittests/data/")
-      : m_Module{nullptr}, m_shouldVerify(shouldVerify),
-        m_TestDataDir{dataDir} {
+      : TestModule{nullptr}, m_shouldVerify(shouldVerify),
+        TestDataDir{dataDir} {
 #if (LLVM_VERSION_MAJOR >= 4) ||                                               \
     (LLVM_VERSION_MAJOR == 3 && LLVM_VERSION_MINOR >= 9)
-    m_Context = &theContext;
+    TestContext = &theContext;
 #else
-    m_Context = &(llvm::getGlobalContext());
+    TestContext = &(llvm::getGlobalContext());
 #endif
   }
 
   void parseAssemblyFile(llvm::StringRef AssemblyHolder) {
-    auto filename = (m_TestDataDir + AssemblyHolder).str();
-    m_Module = llvm::parseAssemblyFile(filename, m_Diagnostic, *m_Context);
+    TestModule = llvm::parseAssemblyFile((TestDataDir + AssemblyHolder).str(),
+                                         TestDiagnostic, *TestContext);
 
     report();
   }
 
   void parseAssemblyString(llvm::StringRef AssemblyHolder) {
-    m_Module =
-        llvm::parseAssemblyString(AssemblyHolder, m_Diagnostic, *m_Context);
+    TestModule =
+        llvm::parseAssemblyString(AssemblyHolder, TestDiagnostic, *TestContext);
 
     report();
   }
@@ -70,12 +70,12 @@ protected:
   void report() {
     std::string msg;
     llvm::raw_string_ostream os(msg);
-    m_Diagnostic.print("", os);
+    TestDiagnostic.print("", os);
 
-    if (m_shouldVerify && llvm::verifyModule(*m_Module, &(llvm::errs())))
+    if (m_shouldVerify && llvm::verifyModule(*TestModule, &(llvm::errs())))
       llvm::report_fatal_error("module verification failed\n");
 
-    if (!m_Module)
+    if (!TestModule)
       llvm::report_fatal_error(os.str().c_str());
   }
 
@@ -85,10 +85,10 @@ protected:
 #endif
 
   bool m_shouldVerify;
-  std::unique_ptr<llvm::Module> m_Module;
-  llvm::StringRef m_TestDataDir;
-  llvm::LLVMContext *m_Context;
-  llvm::SMDiagnostic m_Diagnostic;
+  std::unique_ptr<llvm::Module> TestModule;
+  llvm::StringRef TestDataDir;
+  llvm::LLVMContext *TestContext;
+  llvm::SMDiagnostic TestDiagnostic;
 };
 
 } // namespace testing
