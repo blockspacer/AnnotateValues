@@ -10,6 +10,8 @@
 
 #include "BWList.hpp"
 
+#include "Util.hpp"
+
 #include "Debug.hpp"
 
 #include "llvm/Config/llvm-config.h"
@@ -23,13 +25,6 @@
 #include "llvm/Transforms/IPO/PassManagerBuilder.h"
 // using llvm::PassManagerBuilder
 // using llvm::RegisterStandardPasses
-
-#include "llvm/IR/InstIterator.h"
-// using llvm::inst_begin
-// using llvm::inst_end
-
-#include "llvm/ADT/iterator_range.h"
-// using llvm::make_range
 
 #include "llvm/Support/CommandLine.h"
 // using llvm::cl::opt
@@ -59,11 +54,6 @@
 // using assert
 
 #define DEBUG_TYPE "annotate-instructions"
-
-#define STRINGIFY_UTIL(x) #x
-#define STRINGIFY(x) STRINGIFY_UTIL(x)
-
-#define PRJ_CMDLINE_DESC(x) x " (version: " STRINGIFY(VERSION_STRING) ")"
 
 // plugin registration for opt
 
@@ -161,18 +151,7 @@ static llvm::cl::opt<LogLevel, true> DebugLevel(
 
 //
 
-namespace icsa {
-
 namespace {
-
-template <typename T> decltype(auto) make_inst_range(T &&Unit) {
-  return llvm::make_range(llvm::inst_begin(std::forward<T>(Unit)),
-                          llvm::inst_end(std::forward<T>(Unit)));
-}
-
-template <typename T> bool is_range_empty(const T &Range) {
-  return Range.begin() == Range.end();
-}
 
 void checkCmdLineOptions() {
   if (OperationMode == AIOpts::Read) {
@@ -188,6 +167,8 @@ void checkCmdLineOptions() {
 }
 
 } // namespace
+
+namespace icsa {
 
 bool AnnotateInstructionsPass::runOnModule(llvm::Module &CurModule) {
   checkCmdLineOptions();

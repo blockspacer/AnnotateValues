@@ -8,6 +8,8 @@
 
 #include "BWList.hpp"
 
+#include "Util.hpp"
+
 #include "Debug.hpp"
 
 #include "llvm/Config/llvm-config.h"
@@ -81,11 +83,6 @@
 // using std::uint64_t
 
 #define DEBUG_TYPE "annotate-loops"
-
-#define STRINGIFY_UTIL(x) #x
-#define STRINGIFY(x) STRINGIFY_UTIL(x)
-
-#define PRJ_CMDLINE_DESC(x) x " (version: " STRINGIFY(VERSION_STRING) ")"
 
 // plugin registration for opt
 
