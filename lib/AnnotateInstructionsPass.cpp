@@ -41,7 +41,6 @@
 // using llvm_unreachable
 
 #include <algorithm>
-// using std::for_each
 // using std::any_of
 
 #include <string>
@@ -114,11 +113,11 @@ static llvm::cl::opt<AIOpts> OperationMode(
     llvm::cl::cat(AnnotateInstructionsCategory));
 
 static llvm::cl::opt<unsigned int>
-    StartId("ai-start-id", llvm::cl::desc("instruction start ID"),
+    StartID("ai-start-id", llvm::cl::desc("instruction start ID"),
             llvm::cl::init(1), llvm::cl::cat(AnnotateInstructionsCategory));
 
 static llvm::cl::opt<unsigned int>
-    IdInterval("ai-id-interval",
+    IDInterval("ai-id-interval",
                llvm::cl::desc("instruction ID increment interval"),
                llvm::cl::init(1), llvm::cl::cat(AnnotateInstructionsCategory));
 //
@@ -166,9 +165,19 @@ template <typename T> bool is_range_empty(const T &Range) {
   return Range.begin() == Range.end();
 }
 
+void checkCmdLineOptions() {
+  if (OperationMode == AIOpts::Read) {
+    assert(!StartID.getPosition() && "Cannot specify this option combination!");
+    assert(!IDInterval.getPosition() &&
+           "Cannot specify this option combination!");
+  }
+}
+
 } // namespace
 
 bool AnnotateInstructionsPass::runOnModule(llvm::Module &CurModule) {
+  checkCmdLineOptions();
+
   bool shouldReportStats = !ReportStatsFilename.empty();
   bool useFuncWhitelist = !FuncWhiteListFilename.empty();
   bool hasChanged = false;
@@ -188,16 +197,18 @@ bool AnnotateInstructionsPass::runOnModule(llvm::Module &CurModule) {
   }
 
   for (auto &CurFunc : CurModule) {
-    if (CurFunc.isDeclaration() ||
-        (useFuncWhitelist &&
-         !funcWhiteList.matches(CurFunc.getName().data()))) {
+    if (CurFunc.isDeclaration()) {
+      continue;
+    }
+
+    if (useFuncWhitelist && !funcWhiteList.matches(CurFunc.getName().data())) {
       continue;
     }
 
     auto instructions = make_inst_range(CurFunc);
 
     if (AIOpts::Write == OperationMode) {
-      AnnotateInstructions::Writer writer{StartId, IdInterval};
+      AnnotateInstructions::Writer writer{StartID, IDInterval};
 
       for (auto &e : instructions) {
         hasChanged |= true;
