@@ -149,7 +149,13 @@ static llvm::cl::opt<LogLevel, true> DebugLevel(
         clEnumValN(LogLevel::notice, "notice", "significant conditions"),
         clEnumValN(LogLevel::warning, "warning", "warning conditions"),
         clEnumValN(LogLevel::error, "error", "error conditions"),
-        clEnumValN(LogLevel::debug, "debug", "debug messages"), nullptr),
+        clEnumValN(LogLevel::debug, "debug", "debug messages")
+// clang-format off
+#if (LLVM_VERSION_MAJOR <= 3 && LLVM_VERSION_MINOR < 9)
+                                , clEnumValEnd
+#endif
+        // clang-format on
+        ),
     llvm::cl::cat(AnnotateInstructionsCategory));
 #endif // ANNOTATELOOPS_DEBUG
 
