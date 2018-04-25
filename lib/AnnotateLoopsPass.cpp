@@ -161,30 +161,6 @@ static llvm::cl::opt<std::string>
                           llvm::cl::desc("function whitelist"),
                           llvm::cl::cat(AnnotateLoopsCategory));
 
-#if ANNOTATELOOPS_DEBUG
-static llvm::cl::opt<bool, true>
-    Debug("al-debug", llvm::cl::desc("debug annotate loops pass"),
-          llvm::cl::location(icsa::utility::passDebugFlag),
-          llvm::cl::cat(AnnotateLoopsCategory));
-
-static llvm::cl::opt<LogLevel, true> DebugLevel(
-    "al-debug-level", llvm::cl::desc("debug level for annotate loops pass"),
-    llvm::cl::location(icsa::utility::passLogLevel),
-    llvm::cl::values(
-        clEnumValN(LogLevel::Info, "Info", "informational messages"),
-        clEnumValN(LogLevel::Notice, "Notice", "significant conditions"),
-        clEnumValN(LogLevel::Warning, "Warning", "warning conditions"),
-        clEnumValN(LogLevel::Error, "Error", "error conditions"),
-        clEnumValN(LogLevel::Debug, "Debug", "debug messages")
-// clang-format off
-#if (LLVM_VERSION_MAJOR <= 3 && LLVM_VERSION_MINOR < 9)
-                                , clEnumValEnd
-#endif
-        // clang-format on
-        ),
-    llvm::cl::cat(AnnotateLoopsCategory));
-#endif // ANNOTATELOOPS_DEBUG
-
 //
 
 namespace icsa {

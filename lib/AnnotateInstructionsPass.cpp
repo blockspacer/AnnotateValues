@@ -15,6 +15,7 @@
 #include "Debug.hpp"
 
 #include "llvm/Config/llvm-config.h"
+// version macros
 
 #include "llvm/IR/Module.h"
 // using llvm::Module
@@ -123,31 +124,6 @@ static llvm::cl::opt<std::string>
     FuncWhiteListFilename("ai-fn-whitelist",
                           llvm::cl::desc("function whitelist"),
                           llvm::cl::cat(AnnotateInstructionsCategory));
-
-#if ANNOTATELOOPS_DEBUG
-static llvm::cl::opt<bool, true>
-    Debug("ai-debug", llvm::cl::desc("debug annotate instructions pass"),
-          llvm::cl::location(icsa::utility::passDebugFlag),
-          llvm::cl::cat(AnnotateInstructionsCategory));
-
-static llvm::cl::opt<LogLevel, true> DebugLevel(
-    "ai-debug-level",
-    llvm::cl::desc("debug level for annotate instructions pass"),
-    llvm::cl::location(icsa::utility::passLogLevel),
-    llvm::cl::values(
-        clEnumValN(LogLevel::Info, "Info", "informational messages"),
-        clEnumValN(LogLevel::Notice, "Notice", "significant conditions"),
-        clEnumValN(LogLevel::Warning, "Warning", "warning conditions"),
-        clEnumValN(LogLevel::Error, "Error", "error conditions"),
-        clEnumValN(LogLevel::Debug, "Debug", "debug messages")
-// clang-format off
-#if (LLVM_VERSION_MAJOR <= 3 && LLVM_VERSION_MINOR < 9)
-                                , clEnumValEnd
-#endif
-        // clang-format on
-        ),
-    llvm::cl::cat(AnnotateInstructionsCategory));
-#endif // ANNOTATELOOPS_DEBUG
 
 //
 

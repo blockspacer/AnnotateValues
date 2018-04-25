@@ -31,28 +31,28 @@
 DEFINE_DEBUG_LEVELS;
 
 namespace icsa {
-namespace utility {
+namespace debug {
 
 extern bool passDebugFlag;
 extern LogLevel passLogLevel;
 
-} // namespace utility
+} // namespace debug
 } // namespace icsa
 
 #define DEBUG_MSG(L, STR)                                                      \
   do {                                                                         \
-    if (icsa::utility::passDebugFlag && L <= icsa::utility::passLogLevel)      \
+    if (icsa::debug::passDebugFlag && L <= icsa::debug::passLogLevel)      \
       llvm::errs() << STR;                                                     \
   } while (false)
 
 #define DEBUG_CMD(L, C)                                                        \
   do {                                                                         \
-    if (icsa::utility::passDebugFlag && L <= icsa::utility::passLogLevel)      \
+    if (icsa::debug::passDebugFlag && L <= icsa::debug::passLogLevel)      \
       C;                                                                       \
   } while (false)
 
 namespace icsa {
-namespace utility {
+namespace debug {
 
 static bool dumpFunction(const llvm::Function *CurFunc = nullptr) {
   if (!CurFunc)
@@ -70,7 +70,7 @@ static bool dumpFunction(const llvm::Function *CurFunc = nullptr) {
   return false;
 }
 
-} // namespace utility
+} // namespace debug
 } // namespace icsa
 
 #else
@@ -90,13 +90,13 @@ class Function;
 DEFINE_DEBUG_LEVELS;
 
 namespace icsa {
-namespace utility {
+namespace debug {
 
 static constexpr bool dumpFunction(const llvm::Function *CurFunc = nullptr) {
   return true;
 }
 
-} // namespace utility
+} // namespace debug
 } // namespace icsa
 
 #endif // ANNOTATELOOPS_DEBUG

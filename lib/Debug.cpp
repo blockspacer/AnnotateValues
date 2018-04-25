@@ -5,10 +5,10 @@
 #include "Debug.hpp"
 
 namespace icsa {
-namespace utility {
+namespace debug {
 
 bool passDebugFlag = false;
 LogLevel passLogLevel = LogLevel::Info;
 
-} // namespace utility
+} // namespace debug
 } // namespace icsa
