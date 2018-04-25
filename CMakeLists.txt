@@ -113,11 +113,12 @@ set(CMAKE_MODULE_LINKER_FLAGS
 
 # dependencies
 
+file(TO_CMAKE_PATH "${JSON_ROOT}" JSON_ROOT)
 if(EXISTS ${JSON_ROOT})
-  message(STATUS "JSON root directory: ${JSON_ROOT}")
+  message(STATUS "configured with JSON root directory JSON_ROOT: ${JSON_ROOT}")
   set(PRJ_HAS_JSON 1)
 else()
-  message(WARNING "JSON root directory ${JSON_ROOT} does not exist")
+  message(WARNING "JSON root directory does not exist JSON_ROOT: ${JSON_ROOT}")
   set(PRJ_HAS_JSON 0)
 endif()
 
