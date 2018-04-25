@@ -52,6 +52,13 @@ public:
 #endif
   }
 
+  llvm::Module &module() {
+    if (!TestModule)
+      llvm::report_fatal_error("Module pointer is null!");
+
+    return *TestModule;
+  }
+
   void parseAssemblyFile(llvm::StringRef AssemblyHolder) {
     TestModule = llvm::parseAssemblyFile((TestDataDir + AssemblyHolder).str(),
                                          TestDiagnostic, *TestContext);

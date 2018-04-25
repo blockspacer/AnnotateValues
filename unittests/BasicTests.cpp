@@ -28,7 +28,7 @@ TEST_P(NoAnnotationTest, NoAnnotation) {
   AnnotateLoops al{2, 3};
 
   parseAssemblyFile(td.assemblyFile);
-  auto LI = calculateLoopInfo(*TestModule->begin());
+  auto LI = calculateLoopInfo(*module().begin());
   auto *curLoop = *LI.begin();
   al.has(*curLoop);
 
@@ -55,7 +55,7 @@ TEST_P(PostAnnotationTest, PostAnnotation) {
   AnnotateLoops al{startId, 3};
 
   parseAssemblyFile(td.assemblyFile);
-  auto LI = calculateLoopInfo(*TestModule->begin());
+  auto LI = calculateLoopInfo(*module().begin());
 
   for (auto *e : LI)
     al.annotate(*e);
@@ -86,7 +86,7 @@ TEST_P(PostAnnotationNestedTest, PostAnnotationNested) {
   AnnotateLoops al{startId, 3};
 
   parseAssemblyFile(td.assemblyFile);
-  auto LI = calculateLoopInfo(*TestModule->begin());
+  auto LI = calculateLoopInfo(*module().begin());
 
   for (auto *e : LI) {
     al.annotate(*e);
