@@ -5,6 +5,8 @@
 #ifndef ICSA_ANNOTATEVALUES_STATS_HPP
 #define ICSA_ANNOTATEVALUES_STATS_HPP
 
+#include "Config.hpp"
+
 #include "AnnotateInstructions.hpp"
 
 #include <vector>

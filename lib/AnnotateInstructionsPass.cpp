@@ -171,6 +171,11 @@ void checkCmdLineOptions() {
     assert(!IDInterval.getPosition() &&
            "Cannot specify this option combination!");
   }
+
+#if ANNOTATELOOPS_HAS_JSON == 0
+  assert(!ReportStatsFilename.getPosition() &&
+         "Cannot export stats when not configured with a JSON library");
+#endif // ANNOTATELOOPS_HAS_JSON
 }
 
 } // namespace

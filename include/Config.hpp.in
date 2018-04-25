@@ -11,6 +11,8 @@
 
 #define @PRJ_NAME_UPPER@_VERSION @PRJ_VERSION@
 
+#define @PRJ_NAME_UPPER@_HAS_JSON @PRJ_HAS_JSON@
+
 // clang-format on
 
 #endif // header

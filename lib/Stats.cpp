@@ -4,6 +4,8 @@
 
 #include "Stats.hpp"
 
+#if ANNOTATELOOPS_HAS_JSON == !0
+
 #include "rapidjson/document.h"
 // using rapidjson::Document
 
@@ -13,6 +15,8 @@
 #include "rapidjson/prettywriter.h"
 // using rapidjson::PrettyWriter
 
+#endif // ANNOTATELOOPS_HAS_JSON
+
 #include <fstream>
 // using std::ofstream
 
@@ -21,6 +25,7 @@ namespace json = rapidjson;
 namespace icsa {
 
 bool AnnotateInstructionsStats::save(const std::string &Filename) const {
+#if ANNOTATELOOPS_HAS_JSON == !0
   json::Document d;
   d.SetObject();
 
@@ -44,6 +49,9 @@ bool AnnotateInstructionsStats::save(const std::string &Filename) const {
   d.Accept(writer);
 
   return true;
+#else
+  return false;
+#endif // ANNOTATELOOPS_HAS_JSON
 }
 
 } // namespace icsa
