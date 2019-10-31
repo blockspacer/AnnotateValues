@@ -270,13 +270,17 @@ bool AnnotateLoopsPass::runOnModule(llvm::Module &CurModule) {
     workList.clear();
     auto &LI = getAnalysis<llvm::LoopInfoWrapperPass>(CurFunc).getLoopInfo();
 
-    std::copy(LI.begin(), LI.end(), std::back_inserter(workList));
+    // std::copy(LI.begin(), LI.end(), std::back_inserter(workList));
 
     // TODO this needs documentation
-    for (auto i = 0; i < workList.size(); ++i) {
-      for (auto &e : workList[i]->getSubLoops()) {
-        workList.push_back(e);
-      }
+    // for (auto i = 0; i < workList.size(); ++i) {
+    // for (auto &e : workList[i]->getSubLoops()) {
+    // workList.push_back(e);
+    //}
+    //}
+
+    for (auto *e : LI.getLoopsInPreorder()) {
+      workList.push_back(e);
     }
 
     if (LoopDepthThreshold > 0) {
