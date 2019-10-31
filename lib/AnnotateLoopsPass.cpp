@@ -251,11 +251,14 @@ bool AnnotateLoopsPass::runOnModule(llvm::Module &CurModule) {
       }
     }
 
-    workList.erase(
-        std::remove_if(workList.begin(), workList.end(), [](const auto *e) {
-          auto d = e->getLoopDepth();
-          return d > LoopDepthThreshold;
-        }), workList.end());
+    if (LoopDepthThreshold > 0) {
+      workList.erase(std::remove_if(workList.begin(), workList.end(),
+                                    [](const auto *e) {
+                                      auto d = e->getLoopDepth();
+                                      return d > LoopDepthThreshold;
+                                    }),
+                     workList.end());
+    }
 
     auto rangeStart = annotator.current();
 
