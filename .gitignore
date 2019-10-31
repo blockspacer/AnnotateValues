@@ -2,6 +2,7 @@
 compile_commands.json
 .ycm*
 .vimrc.*
+.ccls*
 
 # Compiled Object files
 *.slo
