@@ -151,6 +151,11 @@ static llvm::cl::opt<bool>
                           llvm::cl::desc("report loop file lines"),
                           llvm::cl::cat(AnnotateLoopsCategory));
 
+static llvm::cl::opt<bool>
+    ReportLoopTopParent("al-loop-top-parent",
+                        llvm::cl::desc("report loop top parent"),
+                        llvm::cl::cat(AnnotateLoopsCategory));
+
 static llvm::cl::opt<std::string>
     ReportStatsFilename("al-stats",
                         llvm::cl::desc("annotate loops stats report filename"),
@@ -176,7 +181,12 @@ std::uint64_t NumFunctionsProcessed = 0;
 std::map<FunctionNameTy, LoopIDRange> FunctionsAltered;
 
 std::map<AnnotateLoops::LoopIDTy,
-         std::tuple<FunctionNameTy, LineNumberTy, FileNameTy>> LoopsAnnotated;
+         std::tuple<FunctionNameTy, LineNumberTy, FileNameTy>>
+    LoopsAnnotated;
+
+std::map<AnnotateLoops::LoopIDTy,
+         std::tuple<FunctionNameTy, LineNumberTy, FileNameTy>>
+    TopLoopsDI;
 
 void ReportStats(llvm::StringRef Filename) {
   std::error_code err;
@@ -203,12 +213,30 @@ void ReportStats(llvm::StringRef Filename) {
         report << ' ' << std::get<2>(e.second);
       }
 
+      if (ReportLoopTopParent) {
+        auto &di = TopLoopsDI.at(e.first);
+
+        report << ' ' << std::get<0>(di);
+        report << ' ' << std::get<1>(di);
+        report << ' ' << std::get<2>(di);
+      }
+
       report << '\n';
     }
   }
 }
 
-} // namespace anonymous
+llvm::Loop *GetTopParentLoop(const llvm::Loop *L) {
+  llvm::Loop *curL = const_cast<llvm::Loop *>(L);
+
+  while (curL && curL->getParentLoop()) {
+    curL = curL->getParentLoop();
+  }
+
+  return curL;
+}
+
+} // namespace
 
 bool AnnotateLoopsPass::runOnModule(llvm::Module &CurModule) {
   bool shouldReportStats = !ReportStatsFilename.empty();
@@ -279,6 +307,28 @@ bool AnnotateLoopsPass::runOnModule(llvm::Module &CurModule) {
 
           LoopsAnnotated.emplace(
               id, std::make_tuple(CurFunc.getName().str(), line, filename));
+
+          if (ReportLoopTopParent) {
+            LineNumberTy parent_line = 0;
+            FileNameTy parent_filename;
+            auto *topParent = GetTopParentLoop(e);
+
+            if (ReportLoopLineNumbers) {
+              if (topParent == e) {
+                parent_line = line;
+                parent_filename = filename;
+              } else {
+                parent_line = topParent->getStartLoc().getLine();
+                auto *scope = llvm::cast<llvm::DIScope>(
+                    topParent->getStartLoc().getScope());
+                parent_filename = scope->getFilename();
+              }
+            }
+
+            TopLoopsDI.emplace(id,
+                               std::make_tuple(CurFunc.getName().str(),
+                                               parent_line, parent_filename));
+          }
         }
       }
     }
