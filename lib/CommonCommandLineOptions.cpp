@@ -2,9 +2,9 @@
 //
 //
 
-#include "Config.hpp"
+#include "AnnotateValues/Config.hpp"
 
-#include "Debug.hpp"
+#include "AnnotateValues/Debug.hpp"
 
 #include "llvm/Support/CommandLine.h"
 // using llvm::cl::opt

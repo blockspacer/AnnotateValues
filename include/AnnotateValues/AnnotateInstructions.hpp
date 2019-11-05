@@ -2,10 +2,9 @@
 //
 //
 
-#ifndef ANNOTATEVALUES_ANNOTATEINSTRUCTIONS_HPP
-#define ANNOTATEVALUES_ANNOTATEINSTRUCTIONS_HPP
+#pragma once
 
-#include "Config.hpp"
+#include "AnnotateValues/Config.hpp"
 
 #include "llvm/ADT/StringRef.h"
 // using llvm::StringRef
@@ -75,4 +74,3 @@ private:
 } // namespace AnnotateInstructions
 } // namespace icsa
 
-#endif // header

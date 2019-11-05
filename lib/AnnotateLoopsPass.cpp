@@ -2,15 +2,15 @@
 //
 //
 
-#include "AnnotateLoopsPass.hpp"
+#include "AnnotateValues/AnnotateLoopsPass.hpp"
 
-#include "AnnotateLoops.hpp"
+#include "AnnotateValues/AnnotateLoops.hpp"
 
-#include "BWList.hpp"
+#include "AnnotateValues/BWList.hpp"
 
-#include "Util.hpp"
+#include "AnnotateValues/Util.hpp"
 
-#include "Debug.hpp"
+#include "AnnotateValues/Debug.hpp"
 
 #include "llvm/Config/llvm-config.h"
 

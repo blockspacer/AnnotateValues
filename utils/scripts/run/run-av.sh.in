@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../lib"
+
+FILENAME=${1}
+OUTPUT_FILENAME=${FILENAME%.*}-av.ll
+REPORT_FILENAME=av-report-${FILENAME%.*}.txt
+
+opt \
+  -load ${LIB_DIR}/@PASS_SO_NAME@ \
+  -annotate-loops \
+  -al-loop-depth-threshold=0 \
+  -al-loop-lines \
+  -al-loop-top-parent \
+  -al-stats=${REPORT_FILENAME} \
+  -S \
+  -o ${OUTPUT_FILENAME} \
+  ${FILENAME}
+

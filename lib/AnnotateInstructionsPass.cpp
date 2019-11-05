@@ -2,17 +2,17 @@
 //
 //
 
-#include "AnnotateInstructionsPass.hpp"
+#include "AnnotateValues/AnnotateInstructionsPass.hpp"
 
-#include "AnnotateInstructions.hpp"
+#include "AnnotateValues/AnnotateInstructions.hpp"
 
-#include "Stats.hpp"
+#include "AnnotateValues/Stats.hpp"
 
-#include "BWList.hpp"
+#include "AnnotateValues/BWList.hpp"
 
-#include "Util.hpp"
+#include "AnnotateValues/Util.hpp"
 
-#include "Debug.hpp"
+#include "AnnotateValues/Debug.hpp"
 
 #include "llvm/Config/llvm-config.h"
 // version macros
@@ -135,11 +135,6 @@ void checkCmdLineOptions() {
     assert(!IDInterval.getPosition() &&
            "Cannot specify this option combination!");
   }
-
-#if ANNOTATEVALUES_HAS_JSON == 0
-  assert(!ReportStatsFilename.getPosition() &&
-         "Cannot export stats when not configured with a JSON library");
-#endif // ANNOTATEVALUES_HAS_JSON
 }
 
 } // namespace

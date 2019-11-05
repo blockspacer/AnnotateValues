@@ -2,12 +2,11 @@
 //
 //
 
-#ifndef ANNOTATEVALUES_ANNOTATEINSTRUCTIONSPASS_HPP
-#define ANNOTATEVALUES_ANNOTATEINSTRUCTIONSPASS_HPP
+#pragma once
 
-#include "Config.hpp"
+#include "AnnotateValues/Config.hpp"
 
-#include "AnnotateInstructions.hpp"
+#include "AnnotateValues/AnnotateInstructions.hpp"
 
 #include "llvm/Pass.h"
 // using llvm::ModulePass
@@ -36,4 +35,3 @@ struct AnnotateInstructionsPass : public llvm::ModulePass {
 
 } // namespace icsa
 
-#endif // header

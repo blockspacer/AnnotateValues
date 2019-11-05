@@ -2,12 +2,11 @@
 //
 //
 
-#ifndef ANNOTATEVALUES_STATS_HPP
-#define ANNOTATEVALUES_STATS_HPP
+#pragma once
 
-#include "Config.hpp"
+#include "AnnotateValues/Config.hpp"
 
-#include "AnnotateInstructions.hpp"
+#include "AnnotateValues/AnnotateInstructions.hpp"
 
 #include <vector>
 // using std::vector
@@ -33,4 +32,3 @@ private:
 
 } // namespace icsa
 
-#endif // header

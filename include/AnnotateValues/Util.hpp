@@ -2,10 +2,9 @@
 //
 //
 
-#ifndef ANNOTATEVALUES_UTIL_HPP
-#define ANNOTATEVALUES_UTIL_HPP
+#pragma once
 
-#include "Config.hpp"
+#include "AnnotateValues/Config.hpp"
 
 #include "llvm/IR/InstIterator.h"
 // using llvm::inst_begin
@@ -35,4 +34,3 @@ template <typename T> bool is_range_empty(const T &Range) {
 
 } // namespace icsa
 
-#endif // header

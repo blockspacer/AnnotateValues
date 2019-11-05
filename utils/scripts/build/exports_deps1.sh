@@ -18,8 +18,6 @@ export BUILD_TYPE=Debug
 
 export GTEST_ROOT=/usr/local/gtest-libcxx
 
-export JSON_ROOT=/bulk/workbench/repos/various/rapidjson/include/
-
 export CXX_FLAGS=
 export CXX_FLAGS="-stdlib=libc++"
 
@@ -40,7 +38,6 @@ ${LLVMCONFIG} --cmakedir &> /dev/null
 
 CMAKE_OPTIONS="-DLLVM_DIR=${LLVM_DIR}"
 CMAKE_OPTIONS="${CMAKE_OPTIONS} -DGTEST_ROOT=${GTEST_ROOT}"
-CMAKE_OPTIONS="${CMAKE_OPTIONS} -DJSON_ROOT=${JSON_ROOT}"
 CMAKE_OPTIONS="${CMAKE_OPTIONS} -DANNOTATEVALUES_SKIP_TESTS=${ANNOTATEVALUES_SKIP_TESTS}"
 
 export CMAKE_OPTIONS

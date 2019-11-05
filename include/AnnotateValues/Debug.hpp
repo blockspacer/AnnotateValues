@@ -2,10 +2,9 @@
 //
 //
 
-#ifndef ANNOTATEVALUES_DEBUG_HPP
-#define ANNOTATEVALUES_DEBUG_HPP
+#pragma once
 
-#include "Config.hpp"
+#include "AnnotateValues/Config.hpp"
 
 #define DEFINE_DEBUG_LEVELS                                                    \
   enum class LogLevel { Info, Notice, Warning, Error, Debug }
@@ -101,4 +100,3 @@ static constexpr bool dumpFunction(const llvm::Function *CurFunc = nullptr) {
 
 #endif // ANNOTATEVALUES_DEBUG
 
-#endif // header

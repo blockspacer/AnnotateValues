@@ -1,12 +1,11 @@
 # cmake file
 
-# build tool configuration
-
 cmake_minimum_required(VERSION 3.2.0)
 
 list(APPEND CMAKE_MODULE_PATH
   "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake-utils/general"
-  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake-utils/modules")
+  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake-utils/modules"
+  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/sanitizers-cmake/cmake")
 
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
@@ -19,6 +18,8 @@ include(GetGitVersion)
 add_clean_all_target()
 
 option(ANNOTATEVALUES_SKIP_TESTS "Skip configuring the project tests" ON)
+option(ANNOTATEVALUES_RPATH_LINK_DEPENDENCIES
+  "Link dependencies in RPATH" OFF)
 
 set(PRJ_DEBUG_VALUE 0)
 string(TOUPPER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE)
@@ -84,6 +85,13 @@ endif()
 
 message(STATUS "EH support: ${LLVM_ENABLE_EH}")
 
+if(SANITIZE_ADDRESS)
+  message(STATUS "ASAN enabled")
+endif()
+
+if(SANITIZE_MEMORY)
+  message(STATUS "MSAN enabled")
+endif()
 
 # when we are building the project as standalone, we'd like to leave the install
 # RPATH empty so that potentially we can dynamically link against other
@@ -112,15 +120,7 @@ set(CMAKE_MODULE_LINKER_FLAGS
 
 # dependencies
 
-file(TO_CMAKE_PATH "${JSON_ROOT}" JSON_ROOT)
-if(EXISTS ${JSON_ROOT})
-  message(STATUS "configured with JSON root directory JSON_ROOT: ${JSON_ROOT}")
-  set(PRJ_HAS_JSON 1)
-else()
-  message(WARNING "JSON root directory does not exist JSON_ROOT: ${JSON_ROOT}")
-  set(PRJ_HAS_JSON 0)
-endif()
-
+find_package(Sanitizers)
 
 #
 
@@ -151,6 +151,12 @@ foreach(PRJ_LIB ${PRJ_LIB_NAMES})
     CXX_STANDARD_REQUIRED ON
     CXX_EXTENSIONS OFF)
 
+  target_compile_options(${PRJ_LIB} PRIVATE "-pedantic")
+  target_compile_options(${PRJ_LIB} PRIVATE "-Wall")
+  target_compile_options(${PRJ_LIB} PRIVATE "-Wextra")
+  target_compile_options(${PRJ_LIB} PRIVATE "-Wno-unused-parameter")
+  target_compile_options(${PRJ_LIB} PRIVATE "-Wno-unused-function")
+
   target_compile_definitions(${PRJ_LIB} PUBLIC ${LLVM_DEFINITIONS})
   target_compile_definitions(${PRJ_LIB}
     PRIVATE VERSION_STRING=${PRJ_VERSION})
@@ -158,19 +164,28 @@ foreach(PRJ_LIB ${PRJ_LIB_NAMES})
   target_include_directories(${PRJ_LIB} PUBLIC ${LLVM_INCLUDE_DIRS})
   target_include_directories(${PRJ_LIB} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
-  target_include_directories(${PRJ_LIB} PRIVATE
-    $<BUILD_INTERFACE:${JSON_ROOT}>)
   target_include_directories(${PRJ_LIB} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>)
   target_include_directories(${PRJ_LIB} PUBLIC
     $<INSTALL_INTERFACE:include>)
+
+  target_include_directories(${PRJ_LIB} PRIVATE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/lib/include>)
 endforeach()
 
 # workaround for OBJECT libraries since they are not first class citizens
 # should be able to use target_link_libraries() against an INTERFACE library
-target_include_directories(${OBJ_LIB_NAME} PUBLIC
+#target_include_directories(${OBJ_LIB_NAME} PUBLIC
+#  $<TARGET_PROPERTY:foo-interface-lib,INTERFACE_INCLUDE_DIRECTORIES>)
+
+target_include_directories(${LIB_NAME} PUBLIC
   $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${PATH_PREFIX}/include>)
 
+if(SANITIZE_MEMORY)
+  target_compile_options(${TEST_LIB_NAME} PUBLIC "-fPIC")
+endif()
+
+add_sanitizers(${OBJ_LIB_NAME})
 
 # according to http://llvm.org/docs/CMake.html
 # we do not need the below library dependencies since the plugin will be loaded
@@ -218,6 +233,10 @@ set(PRJ_CONFIG_HEADER_FILE "Config.hpp")
 set(PRJ_CMAKE_CONFIG_FILE "config.cmake")
 set(PRJ_CMAKE_CONFIG_EXTRA_FILE "config-extra.cmake")
 
+set(BIN_SCRIPTS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/utils/scripts/run/)
+
+set(PASS_SO_NAME ${TRGT_PREFIX}${LIB_NAME}${TRGT_SUFFIX})
+
 set(DEPENDEE "")
 
 install(TARGETS ${LIB_NAME} EXPORT ${ANNOTATEVALUES_EXPORT}
@@ -229,11 +248,15 @@ file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include")
 add_custom_target(clean_generated_include
   COMMAND "${CMAKE_COMMAND}" "-E" "remove_directory"
   "${CMAKE_CURRENT_BINARY_DIR}/include")
-add_dependencies(clean_all clean_generated_include)
+add_custom_target(clean_generated_bin
+  COMMAND "${CMAKE_COMMAND}" "-E" "remove_directory"
+  "${CMAKE_CURRENT_BINARY_DIR}/bin")
+add_custom_target(clean-generated
+  DEPENDS clean_generated_include clean_generated_bin)
 
 configure_file(
-  "${CMAKE_INSTALL_INCLUDEDIR}/${PRJ_CONFIG_HEADER_FILE}.in"
-  "${CMAKE_INSTALL_INCLUDEDIR}/${PRJ_CONFIG_HEADER_FILE}")
+  "${CMAKE_INSTALL_INCLUDEDIR}/${PRJ_NAME}/${PRJ_CONFIG_HEADER_FILE}.in"
+  "${CMAKE_INSTALL_INCLUDEDIR}/${PRJ_NAME}/${PRJ_CONFIG_HEADER_FILE}")
 
 configure_file(
   "${CMAKE_INSTALL_DATAROOTDIR}/cmake/${PRJ_CMAKE_CONFIG_FILE}.in"
@@ -242,8 +265,20 @@ configure_file(
 
 configure_file(
   "${CMAKE_INSTALL_DATAROOTDIR}/cmake/${PRJ_CMAKE_CONFIG_EXTRA_FILE}.in"
-  "${CMAKE_INSTALL_LIBDIR}/cmake/${PRJ_NAME}-${PRJ_CMAKE_CONFIG_EXTRA_FILE}"
+  "${CMAKE_INSTALL_LIBDIR}/cmake/${PRJ_NAME_LOWER}-${PRJ_CMAKE_CONFIG_EXTRA_FILE}"
   @ONLY)
+
+file(GLOB BIN_SCRIPTS LIST_DIRECTORIES FALSE RELATIVE
+  ${BIN_SCRIPTS_DIR}
+  ${BIN_SCRIPTS_DIR}/*.in)
+
+foreach(BIN_SCRIPT_TEMPLATE ${BIN_SCRIPTS})
+  get_filename_component(BIN_SCRIPT ${BIN_SCRIPT_TEMPLATE} NAME_WE)
+  configure_file(
+    "${BIN_SCRIPTS_DIR}/${BIN_SCRIPT_TEMPLATE}"
+    "${CMAKE_INSTALL_BINDIR}/${BIN_SCRIPT}"
+    @ONLY)
+endforeach()
 
 write_basic_package_version_file(
   "${CMAKE_INSTALL_DATAROOTDIR}/cmake/${PRJ_NAME_LOWER}-config-version.cmake"
@@ -259,8 +294,16 @@ install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include/"
 install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/share/"
   DESTINATION "${CMAKE_INSTALL_LIBDIR}")
 
+install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/lib/cmake"
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}")
+
+install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin/"
+  DESTINATION "${CMAKE_INSTALL_BINDIR}"
+  USE_SOURCE_PERMISSIONS)
+
 #
 
 install(EXPORT ${ANNOTATEVALUES_EXPORT}
+	FILE ${PRJ_NAME_LOWER}.cmake
   DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake")
 

@@ -2,8 +2,7 @@
 //
 //
 
-#ifndef ANNOTATEVALUES_BWLIST_HPP
-#define ANNOTATEVALUES_BWLIST_HPP
+#pragma once
 
 #include <regex>
 
@@ -76,4 +75,3 @@ private:
   std::vector<std::regex> m_Patterns;
 };
 
-#endif // header

@@ -5,8 +5,6 @@ This is a `LLVM` [`opt`][1] pass for annotating `LLVM IR` values (loops and inst
 
 The uniqueness of the generated numbers is left to the user of the API and pass.
 
-A (usually up-to-date) generic template for the layout of this repository can be found [here][12].
-
 ## Features
 
 -   Out-of-source builds thanks to [cmake][2].
@@ -18,14 +16,10 @@ A (usually up-to-date) generic template for the layout of this repository can be
 -   C++ compilers:
     -   [LLVM][3]  
         tested with:
-        -   3.7
-        -   3.8
-        -   6.0.1
+        -   7.0.0
     -   [GCC][4]  
         tested with:
         -   5.4.1
-            tested with:
-    -   1.59
 -   [googletest][6]  
     tested with:
     -   1.8.0
@@ -36,11 +30,9 @@ A (usually up-to-date) generic template for the layout of this repository can be
 
 -   [cmake-utils][9]  
     Used for supporting the `cmake`-based build system. Using `git clone --recursive` should take care of everything.
-
-### Optional
-
--   [RapidJSON][13]  
-    Used for exporting stats and text in a structured format.
+-   [sanitizers-cmake][12]
+    Used to provide support for sanitizers. Although the subproject is required for successful configuration, its use is
+    optional.
 
 ## How to build
 
@@ -134,6 +126,4 @@ When the build script uses `LLVM` `cmake` [utility][8] functions the `lib` share
 
 [11]: https://gcc.gnu.org/wiki/Libstdc++
 
-[12]: https://github.com/compor/llvm-skeletons
-
-[13]: https://github.com/Tencent/rapidjson
+[12]: https://github.com/arsenm/sanitizers-cmake
