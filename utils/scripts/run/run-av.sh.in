@@ -2,9 +2,13 @@
 
 LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../lib"
 
-FILENAME=${1}
-OUTPUT_FILENAME=${FILENAME%.*}-av.ll
-REPORT_FILENAME=av-report-${FILENAME%.*}.txt
+INPUT_FILENAME=${1}
+FILENAME=$(basename ${1})
+DIR=$(dirname ${1})
+
+OUTPUT_FILENAME=${DIR}/${FILENAME%.*}-av.ll
+REPORT_FILENAME=${DIR}/polly-remarks-${FILENAME%.*}.yaml
+REPORT_FILENAME=${DIR}/av-report-${FILENAME%.*}.txt
 
 opt \
   -load ${LIB_DIR}/@PASS_SO_NAME@ \
@@ -15,5 +19,4 @@ opt \
   -al-stats=${REPORT_FILENAME} \
   -S \
   -o ${OUTPUT_FILENAME} \
-  ${FILENAME}
-
+  ${INPUT_FILENAME}
